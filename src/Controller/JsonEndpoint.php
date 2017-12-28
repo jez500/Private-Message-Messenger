@@ -213,7 +213,7 @@ class JsonEndpoint extends ControllerBase {
   public function getThread() {
     $id = $this->request->query->get('id');
     $id = str_replace('thread-', '', $id);
-    return !empty($id) ? $this->helper->getThreadByID($id) : FALSE;
+    return !empty($id) ? $this->helper->getThreadById($id) : FALSE;
   }
 
   /**

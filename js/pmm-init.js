@@ -43,21 +43,21 @@
   Drupal.pmm.helpers.formatTimeString = function(dateString) {
     var date = new Date(dateString), out = '';
     return date.toLocaleDateString();
-  }
+  };
 
   /**
    * Return a timestamp suitable for cache busting.
    */
   Drupal.pmm.helpers.getTimestamp = function() {
     var d = new Date(); return Math.round((d.getTime() / 1000));
-  }
+  };
 
   /**
    * Return a timestamp suitable for cache busting.
    */
   Drupal.pmm.helpers.getToken = function() {
     return Drupal.pmm.settings.token;
-  }
+  };
 
   /**
    * Build request params..
@@ -67,7 +67,7 @@
     params.tok = Drupal.pmm.settings.token;
     params.t = Drupal.pmm.helpers.getTimestamp();
     return params;
-  }
+  };
 
   /**
    * Build request url.
@@ -75,14 +75,14 @@
   Drupal.pmm.helpers.buildReqUrl = function(endpoint, params, type) {
     var base = (type === undefined || type == 'get' ? Drupal.pmm.settings.getEndpoint : Drupal.pmm.settings.postEndpoint);
     return base + endpoint + '?' + $.param(Drupal.pmm.helpers.buildReqParams(params));
-  }
+  };
 
   /**
    * Navigate to thread id.
    */
   Drupal.pmm.helpers.navigateToThread = function(id) {
     Drupal.pmm.helpers.navigateTo(id);
-  }
+  };
 
   /**
    * Change the url hash to indicate nav and provide history.
@@ -95,14 +95,14 @@
       location.hash = '#' + path;
     }
     $(window).trigger('hashchange');
-  }
+  };
 
   /**
    * Check if a url path starts with a given hash path.
    */
   Drupal.pmm.helpers.urlStartsWith = function(path) {
     return window.location.hash.lastIndexOf('#' + path, 0) === 0;
-  }
+  };
 
   /**
    * Is the current url a thread path.
@@ -111,7 +111,7 @@
    */
   Drupal.pmm.helpers.isThreadUrl = function() {
     return Drupal.pmm.helpers.urlStartsWith(Drupal.pmm.settings.urlThreadPrefix);
-  }
+  };
 
   /**
    * Is the current url a new thread path.
@@ -120,7 +120,7 @@
    */
   Drupal.pmm.helpers.isThreadNewUrl = function() {
     return Drupal.pmm.helpers.urlStartsWith(Drupal.pmm.settings.urlNewPrefix);
-  }
+  };
 
   /**
    * Is the current url the inbox.
@@ -129,7 +129,7 @@
    */
   Drupal.pmm.helpers.isInboxUrl = function() {
     return window.location.hash == '' || Drupal.pmm.helpers.urlStartsWith('inbox');
-  }
+  };
 
   /**
    * Get an Id from a url has with a given prefix.
@@ -138,7 +138,7 @@
     var hash = window.location.hash, id;
     id = parseInt(hash.replace('#' + prefix + '-', ''));
     return isNaN(id) ? false : id;
-  }
+  };
 
   /**
    * Get thread id from url hash.
@@ -147,7 +147,7 @@
    */
   Drupal.pmm.helpers.getUrlThreadId = function() {
     return Drupal.pmm.helpers.getIdFromUrl(Drupal.pmm.settings.urlThreadPrefix);
-  }
+  };
 
   /**
    * Get uid from new thread url hash or false if no uid.
@@ -156,7 +156,7 @@
    */
   Drupal.pmm.helpers.getUrlNewUid = function() {
     return Drupal.pmm.helpers.getIdFromUrl(Drupal.pmm.settings.urlNewPrefix);
-  }
+  };
 
   /**
    * Scroll the thread messages to the bottom of the list (showing most recent msg).
@@ -167,7 +167,7 @@
   Drupal.pmm.helpers.scrollThreadToLastMsg = function($el) {
     $el = $el || $('#pmm-thread .message-list');
     $el.scrollTop($el[0].scrollHeight);
-  }
+  };
 
   /**
    * Return the unix timestamp for the last visible message in the current thread.
@@ -175,7 +175,7 @@
   Drupal.pmm.helpers.getLastVisibleMsgTimeStamp = function() {
     var lastTime = $('#pmm-thread .pmm-message').last().data('time');
     var d = new Date(lastTime); return (d.getTime() / 1000);
-  }
+  };
 
   /**
    * Save a Message.
@@ -185,7 +185,7 @@
    */
   Drupal.pmm.helpers.saveMessage = function($form, callback) {
     var $msg = $('textarea', $form), values = $form.serialize();
-    if ($msg.val() == '') {
+    if ($msg.val() == '' || $('.pmm-member', $form).length === 0) {
       return;
     }
     // Get time of last po
@@ -200,7 +200,7 @@
         alert('There was an issue saving this message to save message');
       }
     });
-  }
+  };
 
   /**
    * Callback used by the selectize member selector to update members in a new thread form.
@@ -221,7 +221,7 @@
         $form.append($hiddenField.clone().attr('value', uid));
       })
     }
-  }
+  };
 
   /**
    * Returns an array of members from a thread model as a string.
@@ -242,7 +242,7 @@
       }
     }
     return out.join(', ');
-  }
+  };
 
   /**
    * Get a count of threads which have been updated since timestamp.
@@ -256,7 +256,7 @@
         callback(data);
       }
     });
-  }
+  };
 
   /**
    * Apply the 'pmm-small' class for small screens.
@@ -268,7 +268,7 @@
     } else {
       $wrapper.addClass('pmm-small').removeClass('pmm-large');
     }
-  }
+  };
 
 
   // Generic behaviours.
@@ -301,6 +301,6 @@
         }
       });
     }
-  }
+  };
 
 })(Backbone, jQuery, Drupal, drupalSettings, _, Marionette);

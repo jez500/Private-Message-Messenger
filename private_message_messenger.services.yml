@@ -4,7 +4,6 @@ services:
     arguments:
      - '@private_message.service'
      - '@config.factory'
-     - '@entity.query'
      - '@entity_type.manager'
      - '@current_user'
      - '@plugin.manager.mail'

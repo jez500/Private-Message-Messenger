@@ -4,7 +4,6 @@ namespace Drupal\private_message_messenger;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\user\Entity\User;
-use Drupal\Core\Entity\Query\QueryFactory;
 use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
@@ -64,13 +63,6 @@ class MessengerHelper {
   protected $config;
 
   /**
-   * Insance of QueryFactory.
-   *
-   * @var \Drupal\Core\Entity\Query\QueryFactory
-   */
-  protected $entityQuery;
-
-  /**
    * Instance of EntityTypeManager.
    *
    * @var \Drupal\Core\Entity\EntityTypeManager
@@ -92,7 +84,7 @@ class MessengerHelper {
   protected $mailManager;
 
   /**
-   * The user data service
+   * The user data service.
    *
    * @var \Drupal\user\UserDataInterface
    */
@@ -106,7 +98,7 @@ class MessengerHelper {
   protected $moduleHandler;
 
   /**
-   * The CSRF token generator service
+   * The CSRF token generator service.
    *
    * @var \Drupal\Core\Access\CsrfTokenGenerator
    */
@@ -125,7 +117,6 @@ class MessengerHelper {
   public function __construct(
     PrivateMessageService $pm_service,
     ConfigFactoryInterface $config,
-    QueryFactory $entity_query,
     EntityTypeManager $entity_type_manager,
     AccountProxyInterface $current_user,
     MailManager $mail_manager,
@@ -137,7 +128,6 @@ class MessengerHelper {
   ) {
     $this->pmService = $pm_service;
     $this->config = $config;
-    $this->entityQuery = $entity_query;
     $this->entityTypeManager = $entity_type_manager;
     $this->currentUser = $current_user;
     $this->mailManager = $mail_manager;
@@ -174,7 +164,7 @@ class MessengerHelper {
    * @return object
    *   Parsed thread object.
    */
-  public function getThreadByID($thread_id) {
+  public function getThreadById($thread_id) {
     $thread = $this->entityTypeManager->getStorage('private_message_thread')->load($thread_id);
     if ($thread && $thread->isMember($this->currentUser->id())) {
       return $this->parseThread($thread);
@@ -194,7 +184,7 @@ class MessengerHelper {
    *   Array of parsed messages.
    */
   public function getThreadMessages($thread_id, $timestamp = 0) {
-    $thread = $this->getThreadByID($thread_id);
+    $thread = $this->getThreadById($thread_id);
     $out = [];
     if ($thread) {
       $messages = $thread->entity->getMessages();
@@ -252,11 +242,10 @@ class MessengerHelper {
     return $item;
   }
 
-
   /**
    * Build a thread item model suitable for our JSON response.
    *
-   * @param object $thread
+   * @param object $parsed_thread
    *   A parsed thread provided by parseThread().
    *
    * @return array
@@ -337,11 +326,13 @@ class MessengerHelper {
 
       // No thread exists, create a 'dummy' thread model.
       return [
-        'members' => [[
-          'name' => Html::escape($member->getUsername()),
-          'id' => $member->id(),
-          'url' => Url::fromRoute('entity.user.canonical', ['user' => $member->id()])->toString(),
-        ]],
+        'members' => [
+          [
+            'name' => Html::escape($member->getUsername()),
+            'id' => $member->id(),
+            'url' => Url::fromRoute('entity.user.canonical', ['user' => $member->id()])->toString(),
+          ],
+        ],
         'picture' => $this->getImageUrl($this->getImageUriFromMember($member)),
         'owner' => '',
         'snippet' => '',
@@ -357,7 +348,7 @@ class MessengerHelper {
   /**
    * Build a message item model suitable for our JSON response.
    *
-   * @param object $message
+   * @param object $parsed_message
    *   A parsed message provided by getThreadMessages().
    *
    * @return array
@@ -399,7 +390,7 @@ class MessengerHelper {
   /**
    * Get the full url for an image with image style applied.
    *
-   * @param $image_uri
+   * @param string $image_uri
    *   Uri to the image.
    *
    * @return string
@@ -407,7 +398,7 @@ class MessengerHelper {
    */
   public function getImageUrl($image_uri) {
     $style = $this->config->get('private_message.settings')->get('image_style');
-    $image_stlye = !empty($style) ? $style : self::IMAGE_STYLE_DEFAULT;
+    $style = !empty($style) ? $style : self::IMAGE_STYLE_DEFAULT;
     return !empty($image_uri) ? ImageStyle::load($style)->buildUrl($image_uri) : '';
   }
 
@@ -424,8 +415,8 @@ class MessengerHelper {
   /**
    * A wrapper for how we want all dates to be formatted.
    *
-   * @param $time
-   *   Unix timestamp
+   * @param int $time
+   *   Unix timestamp.
    *
    * @return string
    *   Date string YYYY-MM-DDTHH:MM:SS
@@ -438,20 +429,20 @@ class MessengerHelper {
    * Validate message values before save.
    *
    * @param array $values
-   *   Array of values sumbitted, includes 'message', 'members' & 'thread_id'
+   *   Array of values sumbitted, includes 'message', 'members' & 'thread_id'.
    *
    * @return bool
    *   TRUE on success, FALSE on fail.
    */
   public function validateMessage(array $values) {
-    // Require memebers and a message to save.
+    // Require members and a message to save.
     if (empty($values['members']) || empty($values['message'])) {
       return FALSE;
     }
 
     // If we have too many members we don't proceed.
     $settings = $this->getSettings();
-    if ($settings['maxMembers'] > 0 && count($members) > $settings['maxMembers']) {
+    if ($settings['maxMembers'] > 0 && count($values['members']) > $settings['maxMembers']) {
       return FALSE;
     }
 
@@ -464,7 +455,7 @@ class MessengerHelper {
    * Source: Drupal\private_message\Form\PrivateMessageForm::save.
    *
    * @param array $values
-   *   Array of values sumbitted, includes 'message', 'members' & 'thread_id'
+   *   Array of values sumbitted, includes 'message', 'members' & 'thread_id'.
    *
    * @return bool|\Drupal\private_message\Entity\PrivateMessageThread
    *   FALSE on fail, a private message thread entity on success.
@@ -510,7 +501,7 @@ class MessengerHelper {
    */
   public function saveMessageEntity(array $values) {
     $entity = entity_create('private_message', [
-      'owner' =>$this->currentUser->id(),
+      'owner' => $this->currentUser->id(),
       'message' => [
         'value' => $values['message'],
         'format' => $this->getTextFormat(),
@@ -528,9 +519,9 @@ class MessengerHelper {
    *
    * @param array $members
    *   Array of members in the thread.
-   * @param $private_message_thread
+   * @param object $private_message_thread
    *   The thread entity.
-   * @param $message_entity
+   * @param object $message_entity
    *   The message entity.
    */
   public function emailMembers(array $members, $private_message_thread, $message_entity) {
@@ -541,7 +532,7 @@ class MessengerHelper {
     ];
 
     foreach ($members as $member) {
-      if($member->id() != $this->currentUser->id()) {
+      if ($member->id() != $this->currentUser->id()) {
         $params['member'] = $member;
         $send = $this->userData->get('private_message', $member->id(), 'email_notification');
         $send = is_numeric($send) ? (bool) $send : ($pm_config->get('enable_email_notifications') && $pm_config->get('send_by_default'));
@@ -598,7 +589,6 @@ class MessengerHelper {
       $user = User::load($uid);
       return ($user && $user->hasPermission('use private messaging system'));
     }
-    return FALSE;
   }
 
   /**
@@ -608,16 +598,18 @@ class MessengerHelper {
    *   Filter format id.
    */
   public function getTextFormat() {
-    $prefered_format = $this->config->get('private_message.settings')->get('preferred_text_format');
-    $prefered_format = empty($prefered_format) ? $prefered_format : 'plain_text';
+    $preferred_format = $this->config->get('private_message.settings')->get('preferred_text_format');
+    $preferred_format = !empty($preferred_format) ? $preferred_format : 'plain_text';
     $formats = filter_formats($this->currentUser);
-    $format = $formats[0];
-    foreach ($formats as $f) {
-      if ($f->id() == $prefered_format) {
-        $format = $f;
-      }
+    // If preferred format is available, use that.
+    if (isset($formats[$preferred_format])) {
+      return $preferred_format;
     }
-    return $format->id();
+    else {
+      // Otherwise use the first available format.
+      $first_format = reset($formats);
+      return $first_format->id();
+    }
   }
 
   /**
@@ -645,12 +637,12 @@ class MessengerHelper {
    *   Array of key/val settings passed to JS.
    */
   public function getSettings() {
-    $settigs = [
+    $settings = [
       'maxMembers' => $this->getThreadMaxMembers(),
       'token' => $this->generateToken(),
     ];
-    $this->moduleHandler->invokeAll('private_message_messenger_js_settings', array($settigs));
-    return $settigs;
+    $this->moduleHandler->invokeAll('private_message_messenger_js_settings', array($settings));
+    return $settings;
   }
 
   /**
@@ -687,7 +679,7 @@ class MessengerHelper {
    * @param int $timestamp
    *   The timestamp should be the last time it was checked.
    *
-   * @retrun array
+   * @return array
    *   Keyed with 'c' = count, 't' = thread_ids, 'ts' = timestamp.
    */
   public function getUnreadThreads($timestamp) {
@@ -697,7 +689,6 @@ class MessengerHelper {
       'ts' => '',
     ];
     if ($out['c'] > 0) {
-      $user = User::load($this->currentUser->id());
       $out['t'] = array_map('intval', $this->getUnreadThreadIds($timestamp));
       $out['ts'] = $timestamp;
     }
