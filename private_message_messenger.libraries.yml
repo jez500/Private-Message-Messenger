@@ -1,0 +1,38 @@
+init:
+  version: 1.0
+  css:
+    layout:
+      css/pmm.css: {}
+  js:
+    js/pmm-init.js: { }
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/drupalSettings
+    - core/jquery.once
+    - marionettejs/marionettejs
+    - selectize/core
+
+pmm_backbone:
+  version: 1.0
+  js:
+    js/pmm-models.js: { }
+    js/pmm-collections.js: { }
+    js/pmm-views.js: { }
+  dependencies:
+    - private_message_messenger/init
+
+
+threads:
+  version: 1.0
+  js:
+    js/pmm-threads.js: { }
+  dependencies:
+    - private_message_messenger/pmm_backbone
+
+thread:
+  version: 1.0
+  js:
+    js/pmm-thread.js: { }
+  dependencies:
+    - private_message_messenger/pmm_backbone

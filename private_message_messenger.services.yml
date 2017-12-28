@@ -1,0 +1,15 @@
+services:
+  private_message_messenger.messenger:
+    class: Drupal\private_message_messenger\MessengerHelper
+    arguments:
+     - '@private_message.service'
+     - '@config.factory'
+     - '@entity.query'
+     - '@entity_type.manager'
+     - '@current_user'
+     - '@plugin.manager.mail'
+     - '@user.data'
+     - '@private_message.mapper'
+     - '@module_handler'
+     - '@csrf_token'
+     - '@database'

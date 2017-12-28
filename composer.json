@@ -1,0 +1,20 @@
+{
+  "name": "drupal/private_message_messenger",
+  "description": "Messenger UX for Private Message module",
+  "type": "drupal-module",
+  "license": "GPL-2.0+",
+  "keywords": ["messaging", "drupal"],
+  "homepage": "https://github.com/jez500/Private-Message-Messenger",
+  "minimum-stability": "dev",
+  "authors": [
+    {
+      "name": "Jeremy Graham",
+      "role": "Maintainer"
+    }
+  ],
+  "require": {
+    "drupal/private_message": "1.*",
+    "drupal/marionettejs": "dev-master",
+    "drupal/selectize": "1.*"
+  }
+}

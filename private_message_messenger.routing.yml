@@ -1,0 +1,15 @@
+# JSON Endpoint.
+private_message_messenger.json_get:
+  path: '/pmm-get/{action}'
+  defaults:
+    _controller: '\Drupal\private_message_messenger\Controller\JsonEndpoint::get'
+  requirements:
+    _permission: 'use private messaging system'
+    _user_is_logged_in: 'TRUE'
+private_message_messenger.json_post:
+  path: '/pmm-post/{action}'
+  defaults:
+    _controller: '\Drupal\private_message_messenger\Controller\JsonEndpoint::post'
+  requirements:
+    _permission: 'use private messaging system'
+    _user_is_logged_in: 'TRUE'

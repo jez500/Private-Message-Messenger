@@ -1,0 +1,112 @@
+{#
+/**
+ * Wrapper for a thread.
+ *
+ * The thread wrapper is the container for a single thread and its messages.
+ * It is the only thing that is visible in the dom, the rest is js templates.
+ */
+ #}
+<div class="pmm-thread__wrapper">
+    <div id="pmm-thread"></div>
+</div>
+
+{#
+/**
+ * A thread template.
+ *
+ * It contains thread details and most importantly, the container for where
+ * the message list gets rendered `pmm-thread__messages`. It also contains
+ * the new message form.
+ */
+#}
+<script id="pmm-thread-full" type="x-template/underscore">
+    <div class="pmm-thread">
+
+        <div class="pmm-thread__header">
+            <div class="pmm-thread__header-inbox">
+                <a href="#inbox">{{ inbox_text }}</a>
+            </div>
+            <div class="pmm-thread__header-members">
+                <%= Drupal.pmm.helpers.membersToString(members, true) %>
+            </div>
+        </div>
+
+        <ul class="pmm-thread__messages"></ul>
+
+        <form class="pmm-thread__new-message">
+            <div class="pmm-thread__message-text">
+                <textarea name="message" placeholder="Type a message"></textarea>
+            </div>
+
+            <div class="pmm-thread__actions">
+                <span class="pmm-thread__send js-form-submit">Send</span>
+            </div>
+
+            <% for (var i = 0, len = members.length; i < len; i++) { %>
+                <input type="hidden" name="members[]" value="<%= members[i].id %>" class="pmm-member" />
+            <% } %>
+
+            <input name="tok" value="<%= Drupal.pmm.helpers.getToken() %>" type="hidden" />
+        </form>
+
+    </div>
+</script>
+
+{#
+/**
+ * A message template.
+ *
+ * Each message in the messages list uses this template.
+ */
+#}
+<script id="pmm-message" type="x-template/underscore">
+    <div class="pmm-message pmm-mesage__owner-<%= is_you ? 'you' : 'them' %>" data-time="<%= timestamp %>">
+
+        <div class="pmm-message__image">
+            <img src="<%= picture ? picture : '{{ fallback_picture }}' %>" title="<%= owner %>" alt="<%= owner %>" />
+        </div>
+
+        <div class="pmm-message__message">
+            <%= message %>
+        </div>
+
+        <div class="pmm-message__date pmm-timestamp" datetime="<%= timestamp %>">
+            <%= Drupal.pmm.helpers.formatTimeString(timestamp) %>
+        </div>
+
+    </div>
+</script>
+
+{#
+/**
+ * A new thread template.
+ *
+ * Used for starting a new thread. Contains a member selector.
+ */
+#}
+<script id="pmm-thread-new" type="x-template/underscore">
+    <div class="pmm-thread pmm-thread--new">
+
+        <div class="pmm-thread__header">
+            <div class="pmm-thread__header-inbox">
+                <a href="#inbox">{{ inbox_text }}</a>
+            </div>
+            <div class="pmm-thread__header-new-members">
+                <select class="new-message-members" multiple="multiple"></select>
+            </div>
+        </div>
+
+        <form class="pmm-thread__new-message">
+            <div class="pmm-thread__message-text">
+                <textarea name="message" placeholder="Type a message"></textarea>
+            </div>
+
+            <div class="pmm-thread__actions">
+                <span class="pmm-thread__send js-form-submit">Send</span>
+            </div>
+
+            <input name="tok" value="<%= Drupal.pmm.helpers.getToken() %>" type="hidden" />
+        </form>
+
+    </div>
+</script>

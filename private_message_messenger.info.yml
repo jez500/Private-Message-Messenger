@@ -1,0 +1,9 @@
+name: Private Message Messenger
+description: Provides a "Facebook messenger" style UX for the Private Message module.
+type: module
+dependencies:
+  - private_message:private_message
+  - marionettejs:marionettejs
+  - selectize:selectize
+version: '8.x-1.x-dev'
+core: '8.x'

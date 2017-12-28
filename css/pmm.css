@@ -1,0 +1,293 @@
+
+.pmm-messenger {
+  min-height: 70vh;
+  position: relative;
+  background: rgba(255,255,255,0.8);
+  display: none;
+}
+
+.pmm-messenger.initialized {
+  display: block;
+}
+
+.pmm-thread__wrapper,
+.pmm-threads__wrapper {
+  box-sizing: border-box;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+
+.pmm-threads__wrapper {
+  left: 0;
+  width: 300px;
+  border-right: 1px solid #ddd;
+  overflow-y: auto;
+}
+
+.pmm-small .pmm-threads__wrapper {
+  width: auto;
+  right: 0;
+  display: none;
+}
+
+.pmm-thread__wrapper {
+  right: 0;
+  left: 300px;
+}
+
+.pmm-small .pmm-thread__wrapper {
+  left: 0;
+}
+
+.pmm-small.is-inbox .pmm-threads__wrapper {
+  display: block;
+  border: none;
+}
+
+.pmm-small.is-inbox .pmm-thread__wrapper {
+  display: none;
+}
+
+
+.pmm-threads__new-message a,
+.pmm-thread__header {
+  display: block;
+  border-bottom: 1px solid #ddd;
+  height: 50px;
+  line-height: 50px;
+  padding: 0 10px;
+}
+
+.pmm-threads__new-message a {
+  background: white;
+}
+
+.pmm-small .pmm-thread__header {
+  text-align: right;
+  padding-left: 70px;
+}
+
+.pmm-threads {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pmm-threads li {
+  margin: 0;
+  padding: 0;
+  clear: left;
+}
+
+.pmm-thread-teaser {
+  cursor: pointer;
+  padding: 10px;
+}
+
+.pmm-thread-teaser.selected {
+  background: rgba(0,0,0,0.05);
+}
+
+.pmm-thread-teaser__image {
+  float: left;
+  margin-right: 10px;
+  max-width: 60px;
+}
+
+.pmm-thread__header-members,
+.pmm-thread-teaser__members,
+.pmm-thread-teaser__snippet {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pmm-thread-teaser__members,
+.pmm-thread-teaser__snippet {
+  line-height: 20px;
+  height: 20px;
+}
+
+.pmm-thread-teaser__members {
+  font-weight: bold;
+}
+
+.pmm-thread-teaser__snippet {
+  margin-bottom: 5px;
+}
+
+.pmm-thread-teaser__date,
+.pmm-message__date {
+  font-size: 0.7em;
+  color: rgba(0,0,0,0.4);
+}
+
+.pmm-thread .message-list,
+.pmm-thread .messages-list li {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pmm-thread .message-list {
+  overflow-y: auto;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50px;
+  bottom: 80px;
+  padding: 10px;
+}
+
+.pmm-thread__header {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  background: white;
+}
+
+.pmm-thread__header-inbox {
+  position: absolute;
+  top: 0;
+  left: 10px;
+  display: none;
+}
+
+.pmm-small .pmm-thread__header-inbox {
+  display: block;
+}
+
+.pmm-small .pmm-thread__header-members {
+  padding: 0 10px;
+}
+
+.pmm-thread__header .new-message-members {
+  text-align: left;
+}
+
+.pmm-thread__header .selectize-input,
+.pmm-thread__header .selectize-input.focus {
+  border: none;
+  box-shadow: none;
+  padding-left: 10px;
+  background: none;
+}
+
+.pmm-thread__header .selectize-input,
+.pmm-thread__header .selectize-input input {
+  font-size: inherit;
+}
+
+.pmm-thread__header .selectize-dropdown {
+  border-width: 0 0 1px 0;
+}
+
+.pmm-small .pmm-thread__header-new-members {
+  margin-top: 50px;
+  min-height: 50px;
+  height: auto;
+}
+
+.pmm-thread--new .pmm-thread__header,
+.pmm-thread--new .pmm-thread__header-new-members {
+  padding: 3px 0;
+}
+
+.pmm-large .pmm-thread--new .pmm-thread__header {
+  background: none;
+  border: none;
+}
+
+.pmm-thread__new-message {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 80px;
+  background: white;
+  border-top: 1px solid #ddd;
+}
+
+.pmm-thread__actions {
+  position: absolute;
+  top: 0;
+  right: 0;
+  text-align: center;
+  width: 100px;
+}
+
+.pmm-thread__send {
+  display: block;
+  padding: 25px 0;
+  cursor: pointer;
+}
+
+.pmm-thread__message-text {
+  margin-right: 100px;
+}
+
+.pmm-thread__message-text textarea {
+  box-sizing: border-box;
+  width: 100%;
+  height: 80px;
+  border: none;
+  resize: none;
+  padding: 5px;
+}
+
+.pmm-message {
+  position: relative;
+  overflow: hidden;
+  padding: 10px 40px;
+}
+
+.pmm-message p:first-child {
+  margin-top: 0;
+}
+
+.pmm-message p:last-child {
+  margin-bottom: 0;
+}
+
+
+.pmm-message__image {
+  position: absolute;
+  top 0;
+  left: 0;
+  width: 30px;
+}
+
+.pmm-mesage__owner-them {
+  margin-right: 10%;
+}
+
+.pmm-mesage__owner-you {
+  margin-left: 10%;
+}
+
+.pmm-mesage__owner-you .pmm-message__image {
+  left: auto;
+  right: 0;
+}
+
+.pmm-message__message {
+  float: left;
+  border-radius: 4px;
+  padding: 10px;
+  background: rgba(0,0,0,0.1);
+}
+
+.pmm-mesage__owner-you .pmm-message__message {
+  float: right;
+}
+
+.pmm-message__date {
+  clear: both;
+  padding: 5px 5px 0;
+}
+
+.pmm-mesage__owner-you .pmm-message__date {
+  text-align: right;
+}
