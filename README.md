@@ -9,6 +9,18 @@ compose and reply to messages without a single page reload.
 
 It is build with mobile in mind and will switch between mobile/desktop layout as space provides.
 
+## Screenshots
+
+#### Desktop
+
+![Desktop](https://preview.ibb.co/jHm7bb/messenger_desktop.jpg)
+
+#### Mobile
+
+![Inbox](https://image.ibb.co/c38aUw/messenger_mobile_inbox.jpg)
+
+![thread](https://image.ibb.co/bSsfwb/messenger_mobile_thread.jpg)
+
 ## Dependencies
 
 ### Private Message
