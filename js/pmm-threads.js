@@ -6,10 +6,10 @@
     attach: function attach(context) {
       $('#pmm-threads', context).once('pmm-threads').each(function () {
 
-        // Instanciate a new thread collection.
+        // Instantiate a new thread collection.
         Drupal.pmm.collections.threadsInstance = new Drupal.pmm.collections.Threads();
 
-        // Instanciate a new thread view with the collection instance.
+        // Instantiate a new thread view with the collection instance.
         Drupal.pmm.views.threadListInstance = new Drupal.pmm.views.ThreadList({
           'collection': Drupal.pmm.collections.threadsInstance
         });
@@ -17,6 +17,7 @@
         // Open thread on click.
         Drupal.pmm.views.threadListInstance.on('childview:select:item', function(item, event){
           Drupal.pmm.helpers.navigateTo(item.model.get('id'));
+          $(window).trigger('threads:viewed');
         });
 
         // Set the optional uid so new users appear in thread list.
@@ -30,7 +31,7 @@
         Drupal.pmm.collections.threadsInstance.fetch(fetchOptions);
 
         // Listen for threads updates and re-fetch if there is updates.
-        $(Drupal.pmm.settings.messengerSelector).on('threads:updated', function(e, data) {
+        $(window).on('threads:updated', function(e, data) {
           // Loop over the models in the threads collection.
           Drupal.pmm.collections.threadsInstance.each(function(model){
             // If one of those models is in the collection, re-fetch.

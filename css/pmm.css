@@ -160,7 +160,7 @@
 }
 
 .pmm-small .pmm-thread__header-members {
-  padding: 0 10px;
+  padding: 0 30px 0 10px;
 }
 
 .pmm-thread__header .new-message-members {
@@ -198,6 +198,31 @@
 .pmm-large .pmm-thread--new .pmm-thread__header {
   background: none;
   border: none;
+}
+
+.pmm-thread__header-menu {
+  position: absolute;
+  top: 0;
+  right: 10px;
+  z-index: 50;
+}
+
+.pmm-thread__header-menu .pmm-dropdown {
+  top: 98%;
+  right: -10px;
+  padding: 5px 10px;
+  width: auto;
+  border-top: none;
+  line-height: 1.8;
+  white-space: nowrap;
+}
+
+.pmm-thread__header-menu-toggle {
+  cursor: pointer;
+}
+
+.pmm-thread__header-members {
+  padding-right: 30px;
 }
 
 .pmm-thread__new-message {
@@ -289,4 +314,67 @@
 
 .pmm-mesage__owner-you .pmm-message__date {
   text-align: right;
+}
+
+.pmm-recent {
+  position: relative;
+}
+
+.pmm-dropdown {
+  background: white;
+  width: 280px;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  border: 1px solid #ddd;
+  z-index: 600;
+  display: none;
+  text-align: left;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pmm-dropdown-parent.open .pmm-dropdown {
+  display: block;
+}
+
+.pmm-recent__dropdown-footer a {
+  display: block;
+  padding: 5px 10px;
+  background: rgba(0,0,0,0.05);
+  text-align: center;
+}
+
+.pmm-recent__threads,
+.pmm-recent__threads li {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pmm-loading span {
+  display: block;
+  text-align: center;
+  padding: 20px 10px;
+  color: rgba(0,0,0,0.4);
+}
+
+.pmm-recent__link {
+  text-align: right;
+  padding: 3px 10px;
+}
+
+.pmm-recent__message-count {
+  display: none;
+  position: absolute;
+  top: 0;
+  font-size: 10px;
+  border-radius: 8px;
+  background: #e63737;
+  color: #fff;
+  padding: 0px;
+  right: 0;
+  min-width: 13px;
+  text-align: center;
 }

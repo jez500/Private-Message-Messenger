@@ -24,9 +24,14 @@
     lastCheckTimestamp: 0,
     threadCount: 30,
     ajaxRefreshRate: 15,
+    recentAjaxRefreshRate: 15,
+    recentThreadCount: 3,
+    messengerPath: '/messenger',
+    messengerActive: false,
+    unreadCount: 0
   };
 
-  // Settings passed via drupalSettings can overrite hard coded settings.
+  // Settings passed via drupalSettings can overwrite hard coded settings.
   // Extending modules can use `hook_private_message_messenger_js_settings_alter()`.
   if (drupalSettings.pmm) {
     Drupal.pmm.settings = $.extend(Drupal.pmm.settings, drupalSettings.pmm);
@@ -184,6 +189,7 @@
    *   The new message $form.
    */
   Drupal.pmm.helpers.saveMessage = function($form, callback) {
+    $(window).trigger('threads:viewed');
     var $msg = $('textarea', $form), values = $form.serialize();
     if ($msg.val() == '' || $('.pmm-member', $form).length === 0) {
       return;
@@ -270,6 +276,16 @@
     }
   };
 
+  /**
+   * Get ajax refresh rate, default is the recent block refresh rate, but if
+   * on the messenger page, its refresh rate trumps the recent block. This allows
+   * for more frequent checking on the messenger page.
+   */
+  Drupal.pmm.helpers.getRefreshRate = function() {
+    return (Drupal.pmm.settings.messengerActive ?
+      Drupal.pmm.settings.ajaxRefreshRate : Drupal.pmm.settings.recentAjaxRefreshRate);
+  };
+
 
   // Generic behaviours.
   // --------------------------------------------
@@ -280,6 +296,7 @@
   Drupal.behaviors.pmmMessengerReady = {
     attach: function attach(context) {
       $(Drupal.pmm.settings.messengerSelector, context).once('pmm').each(function () {
+
         // Add initialized class once js kicked in.
         $(Drupal.pmm.settings.messengerSelector).addClass('initialized');
 
@@ -289,16 +306,34 @@
           Drupal.pmm.helpers.checkWidth();
         }, 250));
 
-        // Check for new updates since
+      });
+    }
+  };
+
+  /**
+   * Global behavior.
+   *
+   * Main purpose is polling which applies to recent and messenger.
+   */
+  Drupal.behaviors.pmmGlobal = {
+    attach: function attach(context) {
+      $('body', context).once('pmm-polling').each(function () {
+
+        // Poll for new updates.
         Drupal.pmm.settings.lastCheckTimestamp = Drupal.pmm.helpers.getTimestamp();
         // Only if refresh rate is gt 0.
-        if (Drupal.pmm.settings.ajaxRefreshRate > 0) {
+        if (Drupal.pmm.helpers.getRefreshRate() > 0) {
           setInterval(function(e){
             Drupal.pmm.helpers.checkForThreadUpdates(function(data){
-              $(Drupal.pmm.settings.messengerSelector).trigger('threads:updated', [data]);
+              $(window).trigger('threads:updated', [data]);
             });
-          }, (Drupal.pmm.settings.ajaxRefreshRate * 1000));
+          }, (Drupal.pmm.helpers.getRefreshRate() * 1000));
         }
+      });
+
+      // Close any dropdowns on body click.
+      $('body').click(function(e){
+        $('.pmm-dropdown-parent').removeClass('open');
       });
     }
   };

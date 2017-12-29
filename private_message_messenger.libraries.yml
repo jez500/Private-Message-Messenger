@@ -36,3 +36,10 @@ thread:
     js/pmm-thread.js: { }
   dependencies:
     - private_message_messenger/pmm_backbone
+
+recent:
+  version: 1.0
+  js:
+    js/pmm-recent.js: { }
+  dependencies:
+    - private_message_messenger/pmm_backbone

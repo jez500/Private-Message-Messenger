@@ -16,12 +16,28 @@ function private_message_messenger_theme($existing, $type, $theme, $path) {
       'variables' => [
         'fallback_picture' => NULL,
         'inbox_text' => NULL,
+        'delete_text' => NULL,
+        'base_path' => '/',
+        'thread_actions' => TRUE,
       ],
     ],
     'pmm_threads' => [
       'variables' => [
-        'fallback_picture' => NULL,
         'new_message_text' => NULL,
+        'loading_text' => NULL,
+      ],
+    ],
+    'pmm_thread_teaser' => [
+      'variables' => [
+        'fallback_picture' => NULL,
+        'id_suffix' => NULL,
+      ],
+    ],
+    'pmm_recent' => [
+      'variables' => [
+        'link_text' => '',
+        'more_text' => '',
+        'loading_text' => NULL,
       ],
     ],
   ];
@@ -32,8 +48,8 @@ function private_message_messenger_theme($existing, $type, $theme, $path) {
  */
 function template_preprocess_pmm_threads(&$variables) {
   $variables['#attached']['library'][] = 'private_message_messenger/threads';
-  $variables['fallback_picture'] = _private_message_messenger_fallback_picture();
   $variables['new_message_text'] = t('New Message');
+  $variables['loading_text'] = t('Loading...');
 }
 
 /**
@@ -43,6 +59,27 @@ function template_preprocess_pmm_thread(&$variables) {
   $variables['#attached']['library'][] = 'private_message_messenger/thread';
   $variables['fallback_picture'] = _private_message_messenger_fallback_picture();
   $variables['inbox_text'] = t('‹ Inbox');
+  $variables['delete_text'] = t('Delete thread');
+  $variables['base_path'] = base_path();
+}
+
+/**
+ * Implements hook_preprocess_pmm_thread().
+ */
+function template_preprocess_pmm_thread_teaser(&$variables) {
+  $variables['fallback_picture'] = _private_message_messenger_fallback_picture();
+}
+
+/**
+ * Implements hook_preprocess_pmm_recent().
+ */
+function template_preprocess_pmm_recent(&$variables) {
+  $helper = \Drupal::service('private_message_messenger.messenger');
+  $variables['#attached']['library'][] = 'private_message_messenger/recent';
+  $variables['link_text'] = t('Messages');
+  $variables['all_text'] = t('All Messages');
+  $variables['loading_text'] = t('Loading...');
+  $variables['url'] = $helper->getMessengerPath();
 }
 
 /**
@@ -118,13 +155,15 @@ function private_message_messenger_form_private_message_config_form_submit(&$for
 }
 
 /**
- * Get the gallback image.
+ * Get the fallback image.
  *
  * @return string
  *   Path to the default image.
  */
 function _private_message_messenger_fallback_picture() {
-  return base_path() . drupal_get_path('module', 'private_message_messenger') . '/images/default-profile.jpg';
+  $img = base_path() . drupal_get_path('module', 'private_message_messenger') . '/images/default-profile.jpg';
+  \Drupal::moduleHandler()->alter('private_message_messenger_fallback_picture', $img);
+  return $img;
 }
 
 /**

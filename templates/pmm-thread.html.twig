@@ -23,12 +23,26 @@
     <div class="pmm-thread">
 
         <div class="pmm-thread__header">
+
             <div class="pmm-thread__header-inbox">
                 <a href="#inbox">{{ inbox_text }}</a>
             </div>
+
             <div class="pmm-thread__header-members">
                 <%= Drupal.pmm.helpers.membersToString(members, true) %>
             </div>
+
+            {% if thread_actions %}
+            <% if (type == 'thread') { %>
+                <div class="pmm-thread__header-menu pmm-dropdown-parent">
+                    <div class="pmm-thread__header-menu-toggle pmm-dropdown-toggle"><span>☰</span></div>
+                    <ul class="pmm-dropdown">
+                        <li><a href="{{ base_path }}private_messages/<%= threadId %>/delete?destination={{ base_path }}messenger">{{ delete_text }}</a></li>
+                    </ul>
+                </div>
+            <% } %>
+            {%  endif %}
+
         </div>
 
         <ul class="pmm-thread__messages"></ul>

@@ -117,7 +117,7 @@ class JsonEndpoint extends ControllerBase {
       // Polling endpoint, returns unread msg count and thread ids.
       case 'poll':
         $response = $this->helper->getUnreadThreads($request->query->get('ts'));
-
+        break;
     }
 
     // If not valid action, error.
@@ -126,10 +126,7 @@ class JsonEndpoint extends ControllerBase {
     }
 
     // Allow other modules to modify any of the json responses.
-    $this->moduleHandler->invokeAll(
-      'private_message_messenger_json_response',
-      [$response, $action, $request]
-    );
+    $this->moduleHandler->alter('private_message_messenger_json_response', $response, $action, $request);
 
     // Return as a JSON response.
     return $this->jsonResponse($response);
@@ -148,6 +145,7 @@ class JsonEndpoint extends ControllerBase {
    */
   public function post($action, Request $request) {
     $this->request = $request;
+    $this->helper->getService()->updateLastCheckTime();
 
     // Get all the values.
     $values = $request->request->all();
@@ -197,6 +195,7 @@ class JsonEndpoint extends ControllerBase {
   public function buildThreadCollection($uid = NULL, $limit = 30) {
     $response = [];
     $threads = $this->helper->getRecentThreadCollection($limit);
+    $this->helper->getService()->updateLastCheckTime();
 
     // If a uid is specified, we ensure it is first in the list.
     if (!empty($uid) && $first_thread = $this->helper->getThreadModelForUid($uid)) {
@@ -248,6 +247,7 @@ class JsonEndpoint extends ControllerBase {
   public function buildMessagesCollection($thread_id, $timestamp = 0) {
     if ($thread_id) {
       $response = [];
+      $this->helper->getService()->updateLastCheckTime();
       foreach ($this->helper->getThreadMessages($thread_id, $timestamp) as $message) {
         $response[] = $this->helper->processMessageModel($message);
       }

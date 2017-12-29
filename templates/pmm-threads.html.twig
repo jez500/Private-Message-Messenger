@@ -9,40 +9,7 @@
     <div class="pmm-threads__new-message">
         <a href="#new">{{ new_message_text }}</a>
     </div>
-    <ul id="pmm-threads" class="pmm-threads"></ul>
+    <ul id="pmm-threads" class="pmm-threads">
+        <li class="pmm-threads__loading pmm-loading"><span>{{ loading_text }}</span></li>
+    </ul>
 </div>
-
-{#
-/**
- * A single thread teaser template.
- *
- * Each thread in the list uses this template.
- */
-#}
-<script id="pmm-thread-teaser" type="x-template/underscore">
-    <div class="pmm-thread-teaser" data-time="<%= timestamp %>" rel="<%= id %>">
-
-        {# Fallback picture can be set by preprocessing this template #}
-        <div class="pmm-thread-teaser__image">
-            <img src="<%= picture ? picture : '{{ fallback_picture }}' %>" title="<%= owner %>" alt="<%= owner %>" />
-        </div>
-
-        {# List of all thread members #}
-        <div class="pmm-thread-teaser__members">
-            <%= Drupal.pmm.helpers.membersToString(members, false) %>
-        </div>
-
-        {# Short snippet from last msg in the thread #}
-        <div class="pmm-thread-teaser__snippet">
-            <%= snippet %>
-        </div>
-
-        {# Only show a date if its a thread (dont show for new messages) #}
-        <% if (type == 'thread') { %>
-            <div class="pmm-thread-teaser__date pmm-timestamp" datetime="<%= timestamp %>">
-                <%= Drupal.pmm.helpers.formatTimeString(timestamp) %>
-            </div>
-        <% } %>
-
-    </div>
-</script>

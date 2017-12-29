@@ -48,7 +48,7 @@ The selectize JS library is used for adding new recipients to messages, install 
 
 #### 1. Add repo and install Private Message Messenger with deps
 
-Add the repo to your `composer.json``
+Add the repo to your `composer.json`
 
 ```
     "repositories": [
@@ -72,16 +72,26 @@ Then...
 And...
 `composer require drupal/private_message_messenger`
 
-#### 2. Enable
+#### 3. Download libraries
+
+Download and extract the following to the `/libraries` folder
+
+* https://marionettejs.com/download/
+* https://github.com/selectize/selectize.js/releases
+* https://github.com/hustcc/timeago.js/releases (optional - see below)
+
+#### 3. Enable
 
 `drush en -y private_message_messenger`
 
-#### 3. Configure
+#### 4. Configure
 
 * Go to `/admin/config/private_message/config` and set preferred configuration then `Save`
 * Set the permission to `use private message` for the required roles.
 * Visit `/messenger` to see the messenger page
-* Optional: You can messenger as a block to any page.
+* Blocks:
+  * The `Recent Messenger Messages` block provides a dropdown containing recent messages
+  * The `Private Message Messenger` block is the same as the `/messenger` page just exposed in a block
 
 Docs for private_message: https://www.drupal.org/docs/8/modules/private-message
 
@@ -112,10 +122,7 @@ the [timeago library](http://timeago.org/) in your theme, along with a behaviour
 ## Todo's / Wishlist
 
 * Look into token validation
-* Add delete thread option
 * Email - Correct url / allow override of email notification template
-* Add a flag that registers if a message is viewed but not actioned, a message should not need a reply to flag as
-read - possible improvement to private_message, or maybe achievable with flag
 * Create a private_message_nodejs module that eliminates the need for polling and provides instant updates.
 * Pagination for thread list and message list
   * Currently thread list is limited to specified config

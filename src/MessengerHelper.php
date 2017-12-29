@@ -154,6 +154,16 @@ class MessengerHelper {
   }
 
   /**
+   * Returns an instance of the PM service.
+   *
+   * @return \Drupal\private_message\Service\PrivateMessageService
+   *   Pm service.
+   */
+  public function getService() {
+    return $this->pmService;
+  }
+
+  /**
    * Get threads for a given user.
    *
    * TODO: Account for pagination with timestamp.
@@ -651,8 +661,12 @@ class MessengerHelper {
   public function getSettings() {
     $settings = [
       'maxMembers' => $this->getThreadMaxMembers(),
+      'threadCount' => (int) $this->getConfig('thread_count', self::THREAD_COUNT_DEFAULT),
+      'ajaxRefreshRate' => (int) $this->getConfig('ajax_refresh_rate', self::AJAX_REFRESH_DEFAULT),
+      'messengerPath' => $this->getMessengerPath(),
+      'token' => $this->generateToken(),
     ];
-    $this->moduleHandler->invokeAll('private_message_messenger_js_settings', array($settings));
+    $this->moduleHandler->alter('private_message_messenger_js_settings', $settings);
     return $settings;
   }
 
@@ -710,7 +724,7 @@ class MessengerHelper {
    */
   public function getUnreadThreads($timestamp) {
     $out = [
-      'c' => intval($this->mapper->getUnreadThreadCount($this->currentUser->id(), $timestamp)),
+      'c' => intval($this->pmService->getUnreadThreadCount()),
       't' => [],
       'ts' => '',
     ];
@@ -778,11 +792,9 @@ class MessengerHelper {
       return [];
     }
 
-    // Build JS settings.
+    // Get settings.
     $settings = $this->getSettings();
-    $settings['threadCount'] = (int) $this->getConfig('thread_count', self::THREAD_COUNT_DEFAULT);
-    $settings['ajaxRefreshRate'] = (int) $this->getConfig('ajax_refresh_rate', self::AJAX_REFRESH_DEFAULT);
-    $settings['token'] = $this->generateToken();
+    $settings['messengerActive'] = TRUE;
 
     // Add settings and cache context.
     $build = [
@@ -794,10 +806,16 @@ class MessengerHelper {
           'pmm' => $settings,
         ],
       ],
+      'wrapper' => [
+        '#type' => 'container',
+        '#attributes' => [
+          'class' => ['pmm-messenger__wrapper'],
+        ],
+      ],
     ];
 
     // Build the block.
-    $build['messenger'] = [
+    $build['wrapper']['messenger'] = [
       '#type' => 'container',
       '#attributes' => [
         'class' => ['pmm-messenger'],
@@ -808,10 +826,23 @@ class MessengerHelper {
       'thread' => [
         '#theme' => 'pmm_thread',
       ],
+      'thread_teaser' => [
+        '#theme' => 'pmm_thread_teaser',
+      ],
     ];
 
     // Return block.
     return $build;
+  }
+
+  /**
+   * Return the path to messenger.
+   *
+   * @return \Drupal\Core\GeneratedUrl|string
+   *   URL as a string.
+   */
+  public function getMessengerPath() {
+    return Url::fromUri('internal:/messenger')->toString();
   }
 
 }

@@ -14,7 +14,7 @@
   Drupal.pmm.views.ViewBase = Mn.View.extend({
     onRender: function() {
       Drupal.attachBehaviors(this.el);
-    },
+    }
   });
 
   /**
@@ -23,8 +23,9 @@
   Drupal.pmm.views.CollectionViewBase = Mn.CollectionView.extend({
     onRender: function() {
       Drupal.attachBehaviors(this.el);
-    },
-  })
+      $('.pmm-loading', this.$el).hide();
+    }
+  });
 
 
   // PMM Views.
@@ -35,6 +36,14 @@
    */
   Drupal.pmm.views.Empty = Drupal.pmm.views.ViewBase.extend({
     template: _.template('')
+  });
+
+  /**
+   * Empty view for recent messages.
+   */
+  Drupal.pmm.views.EmptyRecent = Drupal.pmm.views.ViewBase.extend({
+    tagName: 'li',
+    template: _.template('No recent messages')
   });
 
   /**
@@ -52,6 +61,21 @@
   });
 
   /**
+   * Thread recent teaser view.
+   */
+  Drupal.pmm.views.ThreadRecentTeaser = Drupal.pmm.views.ThreadTeaser.extend({
+    template: '#pmm-thread-teaser-recent',
+    triggers: {},
+    events: {
+      'click .pmm-thread-teaser': 'goToThread'
+    },
+    goToThread: function() {
+      window.location = Drupal.pmm.settings.messengerPath + '#thread-' + this.model.get('threadId');
+    }
+
+  });
+
+  /**
    * Thread teaser list.
    */
   Drupal.pmm.views.ThreadList = Drupal.pmm.views.CollectionViewBase.extend({
@@ -60,7 +84,16 @@
     emptyView: Drupal.pmm.views.Empty,
     collectionEvents: {
       "sync": "render"
-    },
+    }
+  });
+
+  /**
+   * Recent thread teaser list.
+   */
+  Drupal.pmm.views.ThreadRecentList = Drupal.pmm.views.ThreadList.extend({
+    el: '#pmm-recent-threads',
+    childView: Drupal.pmm.views.ThreadRecentTeaser,
+    emptyView: Drupal.pmm.views.EmptyRecent
   });
 
   /**
@@ -68,7 +101,7 @@
    */
   Drupal.pmm.views.Message = Drupal.pmm.views.ViewBase.extend({
     tagName: 'li',
-    template: '#pmm-message',
+    template: '#pmm-message'
   });
 
   /**
@@ -86,7 +119,7 @@
       // Scroll to the bottom of the list.
       Drupal.pmm.helpers.scrollThreadToLastMsg(this.$el);
       Drupal.attachBehaviors(this.el);
-    },
+    }
   });
 
   /**
@@ -118,7 +151,7 @@
       Drupal.attachBehaviors(this.el);
     },
     modelEvents: {
-      'change': 'fetchMessages',
+      'change': 'fetchMessages'
     },
     fetchMessages: function() {
       // If the model has been updated, re-fetch the messages.

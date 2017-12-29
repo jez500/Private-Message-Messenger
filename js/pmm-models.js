@@ -27,7 +27,7 @@
       timestamp: '',
       url: '',
       unread: false,
-      messages: [],
+      messages: []
     }
   });
 
@@ -41,7 +41,7 @@
       picture: '',
       is_you: false,
       message: '',
-      timestamp: '',
+      timestamp: ''
     }
   });
 

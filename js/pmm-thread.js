@@ -9,7 +9,6 @@
      */
     attach: function attach(context) {
       $('#pmm-thread', context).once('pmm-threads').each(function () {
-
         // Initial load.
         Drupal.behaviors.pmmThread.routeChange();
 
@@ -19,17 +18,17 @@
         });
 
         // Listen for message updates to current thread.
-        $(Drupal.pmm.settings.messengerSelector).on('threads:updated', function(e, data) {
+        $(window).on('threads:updated', function(e, data) {
           if (Drupal.pmm.helpers.isThreadUrl()) {
             // If we are on one of the updated threads, recent messages using timestamp.
             var threadId = Drupal.pmm.helpers.getUrlThreadId();
             if ($.inArray(threadId, data.t) !== -1) {
               var opt = {data: {id: threadId, ts: data.ts}, add: true, remove: false};
               Drupal.pmm.collections.messagesInstance.fetch(opt);
+              $(window).trigger('threads:viewed');
             }
           }
         });
-
       });
     },
 
@@ -45,7 +44,6 @@
       }
       else {
         // Not inbox.
-
         if (Drupal.pmm.helpers.isThreadUrl()) {
           // If thread url, we know there is a thread id.
           Drupal.behaviors.pmmThread.renderThread();
@@ -101,6 +99,14 @@
           collection: Drupal.pmm.collections.messagesInstance,
         });
 
+        // Toggle thread actions menu.
+        Drupal.pmm.views.threadInstance.on('render', function(e, view){
+          $('.pmm-dropdown-toggle', this.$el).click(function(e){
+            e.stopPropagation();
+            $(this).closest('.pmm-dropdown-parent').toggleClass('open');
+          });
+        });
+
         // Render it to the dom.
         var $thread = Drupal.pmm.views.threadInstance.render().$el;
         $('#pmm-thread').html($thread);
@@ -123,7 +129,7 @@
      *
      * This is used when user is not known and includes user selector.
      */
-    renderThreadNew: function(thread_id) {
+    renderThreadNew: function() {
       // Destroy any existing views.
       if (Drupal.pmm.views.threadNewInstance) {
         Drupal.pmm.views.threadNewInstance.destroy();
