@@ -78,9 +78,19 @@ And...
 
 #### 3. Configure
 
-* See Private Message documentation for general how-tos for that module https://www.drupal.org/docs/8/modules/private-message
-* Place the "Private message messenger" block into a region (content recommended) or use something like page manager to create a standalone page for it
-* Visit the page with the block
+* Go to `/admin/config/private_message/config` and set preferred configuration then `Save`
+* Set the permission to `use private message` for the required roles.
+* Visit `/messenger` to see the messenger page
+* Optional: You can messenger as a block to any page.
+
+Docs for private_message: https://www.drupal.org/docs/8/modules/private-message
+
+## Paths
+
+* Thread path `/messenger#thread-[THREAD_ID]` eg `/messenger#thread-1`
+* Compose new message path `/messenger#new`
+* Compose new message to a specific user `/messenger#new-[UID]` eg `/messenger#new-1]`
+* Inbox (Only really applies to mobile, but will also refresh inbox) `/messenger#new`
 
 ## Optional
 
@@ -104,8 +114,12 @@ the [timeago library](http://timeago.org/) in your theme, along with a behaviour
 * Look into token validation
 * Add delete thread option
 * Email - Correct url / allow override of email notification template
-* Maybe make a page/route/controller in addition to a block
 * Add a flag that registers if a message is viewed but not actioned, a message should not need a reply to flag as
 read - possible improvement to private_message, or maybe achievable with flag
 * Create a private_message_nodejs module that eliminates the need for polling and provides instant updates.
-* ??
+* Pagination for thread list and message list
+  * Currently thread list is limited to specified config
+  * Currently ALL messages are shown in a loaded thread, have tested with 100's of messages and JSON response is still
+  very small eg < 30k. More of a problem could potentially be the browser rendering that much, but no issues observed
+  yet.
+

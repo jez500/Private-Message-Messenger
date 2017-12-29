@@ -13,3 +13,11 @@ private_message_messenger.json_post:
   requirements:
     _permission: 'use private messaging system'
     _user_is_logged_in: 'TRUE'
+private_message_messenger.messenger:
+  path: '/messenger'
+  defaults:
+    _controller: '\Drupal\private_message_messenger\Controller\Messenger::content'
+    _title: 'Messenger'
+  requirements:
+    _permission: 'use private messaging system'
+    _user_is_logged_in: 'TRUE'

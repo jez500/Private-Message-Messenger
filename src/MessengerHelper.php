@@ -35,6 +35,21 @@ class MessengerHelper {
   const IMAGE_STYLE_DEFAULT = 'thumbnail';
 
   /**
+   * Text format default.
+   */
+  const TEXT_FORMAT_DEFAULT = 'plain_text';
+
+  /**
+   * Thread count default.
+   */
+  const THREAD_COUNT_DEFAULT = 50;
+
+  /**
+   * Ajax refresh rate default.
+   */
+  const AJAX_REFRESH_DEFAULT = 15;
+
+  /**
    * Length of a message snippet. TODO: Abstract.
    *
    * @var int
@@ -397,8 +412,7 @@ class MessengerHelper {
    *   Full url for the image with style applied.
    */
   public function getImageUrl($image_uri) {
-    $style = $this->config->get('private_message.settings')->get('image_style');
-    $style = !empty($style) ? $style : self::IMAGE_STYLE_DEFAULT;
+    $style = $this->getConfig('image_style', self::IMAGE_STYLE_DEFAULT);
     return !empty($image_uri) ? ImageStyle::load($style)->buildUrl($image_uri) : '';
   }
 
@@ -525,7 +539,6 @@ class MessengerHelper {
    *   The message entity.
    */
   public function emailMembers(array $members, $private_message_thread, $message_entity) {
-    $pm_config = $this->config->get('private_message.settings');
     $params = [
       'private_message' => $message_entity,
       'private_message_thread' => $private_message_thread,
@@ -535,7 +548,7 @@ class MessengerHelper {
       if ($member->id() != $this->currentUser->id()) {
         $params['member'] = $member;
         $send = $this->userData->get('private_message', $member->id(), 'email_notification');
-        $send = is_numeric($send) ? (bool) $send : ($pm_config->get('enable_email_notifications') && $pm_config->get('send_by_default'));
+        $send = is_numeric($send) ? (bool) $send : ($this->getConfig('enable_email_notifications', 0) && $this->getConfig('send_by_default', 0));
         if ($send) {
           $this->mailManager->mail('private_message', 'message_notification', $member->getEmail(), $member->getPreferredLangcode(), $params);
         }
@@ -598,8 +611,7 @@ class MessengerHelper {
    *   Filter format id.
    */
   public function getTextFormat() {
-    $preferred_format = $this->config->get('private_message.settings')->get('preferred_text_format');
-    $preferred_format = !empty($preferred_format) ? $preferred_format : 'plain_text';
+    $preferred_format = $this->getConfig('preferred_text_format', self::TEXT_FORMAT_DEFAULT);
     $formats = filter_formats($this->currentUser);
     // If preferred format is available, use that.
     if (isset($formats[$preferred_format])) {
@@ -733,6 +745,73 @@ class MessengerHelper {
       ->execute()
       ->fetchCol();
     return is_array($thread_ids) ? $thread_ids : [];
+  }
+
+  /**
+   * Get a value from config.
+   *
+   * @param string $config_key
+   *   The config to get.
+   * @param mixed $default
+   *   The default value if config is empty.
+   * @param string $config_bin
+   *   The config set, defaults to 'private_message.settings'.
+   *
+   * @return mixed
+   *   The config value.
+   */
+  public function getConfig($config_key, $default = NULL, $config_bin = 'private_message.settings') {
+    $config = $this->config->get($config_bin);
+    $val = $config->get($config_key);
+    return !empty($val) ? $val : $default;
+  }
+
+  /**
+   * Get the renderable array for messenger.
+   *
+   * @return array
+   *   Renderable array.
+   */
+  public function buildMessenger() {
+    // Check access first.
+    if (!$this->currentUser->isAuthenticated() || !$this->checkAccess()) {
+      return [];
+    }
+
+    // Build JS settings.
+    $settings = $this->getSettings();
+    $settings['threadCount'] = (int) $this->getConfig('thread_count', self::THREAD_COUNT_DEFAULT);
+    $settings['ajaxRefreshRate'] = (int) $this->getConfig('ajax_refresh_rate', self::AJAX_REFRESH_DEFAULT);
+    $settings['token'] = $this->generateToken();
+
+    // Add settings and cache context.
+    $build = [
+      '#cache' => [
+        'contexts' => ['user'],
+      ],
+      '#attached' => [
+        'drupalSettings' => [
+          'pmm' => $settings,
+        ],
+      ],
+    ];
+
+    // Build the block.
+    $build['messenger'] = [
+      '#type' => 'container',
+      '#attributes' => [
+        'class' => ['pmm-messenger'],
+      ],
+      'thread_list' => [
+        '#theme' => 'pmm_threads',
+      ],
+      'thread' => [
+        '#theme' => 'pmm_thread',
+      ],
+    ];
+
+    // Return block.
+    return $build;
   }
 
 }

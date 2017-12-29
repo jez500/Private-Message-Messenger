@@ -10,9 +10,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Drupal\Core\Extension\ModuleHandler;
 
 /**
- * Class Calculate.
+ * Class JsonEndpoint.
  *
- * @package Drupal\maxxia_calculators\Controller
+ * @package Drupal\private_message_messenger\JsonEndpoint
  */
 class JsonEndpoint extends ControllerBase {
 
@@ -60,13 +60,17 @@ class JsonEndpoint extends ControllerBase {
    *
    * @param string $action
    *   The action to take.
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   Request object.
    *
    * @return \Symfony\Component\HttpFoundation\JsonResponse
    *   The JSON response.
    */
   public function get($action, Request $request) {
     $this->request = $request;
-    $valid_actions = ['threads', 'thread', 'messages', 'member', 'members', 'poll'];
+    $valid_actions = [
+      'threads', 'thread', 'messages', 'member', 'members', 'poll',
+    ];
     $response = [];
 
     // Check access before doing anything.
@@ -79,27 +83,24 @@ class JsonEndpoint extends ControllerBase {
     switch ($action) {
 
       // Return thread list.
-      case 'threads': {
+      case 'threads':
         $response = $this->buildThreadCollection($request->query->get('uid'), $request->query->get('limit'));
         break;
-      }
 
       // Return single thread.
-      case 'thread': {
+      case 'thread':
         $response = $this->buildThreadModel();
         break;
-      }
 
       // Return messages from a thread.
-      case 'messages': {
+      case 'messages':
         if ($thread = $this->getThread()) {
           $response = $this->buildMessagesCollection($thread->entity->id(), $request->query->get('ts'));
         }
         break;
-      }
 
       // Return member list for autocomplete.
-      case 'member': {
+      case 'member':
         if ($thread = $this->helper->getThreadModelForUid($request->query->get('uid'))) {
           $response = $thread;
         }
@@ -107,18 +108,15 @@ class JsonEndpoint extends ControllerBase {
           $response = $this->formatError($this->t('Invalid user'));
         }
         break;
-      }
 
       // Return member list for autocomplete.
-      case 'members': {
+      case 'members':
         $response = $this->helper->getUserList($request->query->get('name'));
         break;
-      }
 
       // Polling endpoint, returns unread msg count and thread ids.
-      case 'poll': {
+      case 'poll':
         $response = $this->helper->getUnreadThreads($request->query->get('ts'));
-      }
 
     }
 
@@ -128,18 +126,28 @@ class JsonEndpoint extends ControllerBase {
     }
 
     // Allow other modules to modify any of the json responses.
-    $this->moduleHandler->invokeAll('private_message_messenger_json_response', array($response, $action, $request));
+    $this->moduleHandler->invokeAll(
+      'private_message_messenger_json_response',
+      [$response, $action, $request]
+    );
 
     // Return as a JSON response.
     return $this->jsonResponse($response);
   }
 
   /**
-   * Post data bacl.
+   * Post endpoint.
+   *
+   * @param string $action
+   *   Endpoint action.
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   Request obkect.
+   *
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
+   *   JSON response.
    */
-  public function post($action, Request $request ) {
+  public function post($action, Request $request) {
     $this->request = $request;
-    $timestamp = time();
 
     // Get all the values.
     $values = $request->request->all();
@@ -165,13 +173,13 @@ class JsonEndpoint extends ControllerBase {
   /**
    * A wrapper for a json response.
    *
-   * @param $response
+   * @param array $response
    *   Response data.
    *
    * @return \Symfony\Component\HttpFoundation\JsonResponse
    *   A new JSON response.
    */
-  public function jsonResponse($response) {
+  public function jsonResponse(array $response) {
     return new JsonResponse($response);
   }
 
@@ -262,6 +270,5 @@ class JsonEndpoint extends ControllerBase {
   private function formatError($error) {
     return ['error' => $error];
   }
-
 
 }

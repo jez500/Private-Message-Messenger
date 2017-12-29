@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * The private_message_messenger.module file.
@@ -22,12 +23,12 @@ function private_message_messenger_theme($existing, $type, $theme, $path) {
         'fallback_picture' => NULL,
         'new_message_text' => NULL,
       ],
-    ]
+    ],
   ];
 }
 
 /**
- *  Implements hook_preprocess_pmm_threads().
+ * Implements hook_preprocess_pmm_threads().
  */
 function template_preprocess_pmm_threads(&$variables) {
   $variables['#attached']['library'][] = 'private_message_messenger/threads';
@@ -36,7 +37,7 @@ function template_preprocess_pmm_threads(&$variables) {
 }
 
 /**
- *  Implements hook_preprocess_pmm_thread().
+ * Implements hook_preprocess_pmm_thread().
  */
 function template_preprocess_pmm_thread(&$variables) {
   $variables['#attached']['library'][] = 'private_message_messenger/thread';
@@ -48,7 +49,7 @@ function template_preprocess_pmm_thread(&$variables) {
  * Implements hook_form_private_message_config_form_alter().
  */
 function private_message_messenger_form_private_message_config_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-  $config = \Drupal::service('config.factory')->get('private_message.settings');
+  $helper = \Drupal::service('private_message_messenger.messenger');
 
   $form['pmm'] = [
     '#type' => 'container',
@@ -60,7 +61,7 @@ function private_message_messenger_form_private_message_config_form_alter(&$form
     '#type' => 'select',
     '#title' => t('Prefered text format for messages'),
     '#description' => t('You should ensure that users who have access to "use private message" can also access this format.'),
-    '#default_value' => $config->get('preferred_text_format'),
+    '#default_value' => $helper->getConfig('preferred_text_format', 'plain_text'),
     '#options' => [],
   ];
   foreach (filter_formats() as $format) {
@@ -73,12 +74,33 @@ function private_message_messenger_form_private_message_config_form_alter(&$form
     '#type' => 'select',
     '#title' => t('Profile picture Image style'),
     '#description' => t('What image style is used in the messenger interface'),
-    '#default_value' => $config->get('image_style'),
+    '#default_value' => $helper->getConfig('image_style', $helper::IMAGE_STYLE_DEFAULT),
     '#options' => [],
   ];
   foreach ($styles as $style) {
     $form['pmm']['image_style']['#options'][$style->id()] = $style->label();
   }
+
+  // The default thread count to get.
+  $form['thread_count'] = [
+    '#type' => 'number',
+    '#title' => t('Number of threads to show'),
+    '#description' => t('The number of threads to be shown in the block'),
+    '#default_value' => $helper->getConfig('thread_count', $helper::THREAD_COUNT_DEFAULT),
+    '#min' => 1,
+  ];
+
+  $form['ajax_refresh_rate'] = [
+    '#type' => 'number',
+    '#title' => t('Ajax refresh rate'),
+    '#default_value' => $helper->getConfig('ajax_refresh_rate', $helper::AJAX_REFRESH_DEFAULT),
+    '#min' => 0,
+    '#description' => t(
+      'The number of seconds after which the inbox should refresh itself.
+      Setting this to a low number will result in more requests to the server,
+      adding overhead and bandwidth. Setting this number to zero will disable
+      ajax refresh, and the inbox will only updated if/when the page is refreshed.'),
+  ];
 
   $form['#submit'][] = 'private_message_messenger_form_private_message_config_form_submit';
 }
@@ -90,6 +112,8 @@ function private_message_messenger_form_private_message_config_form_submit(&$for
   \Drupal::configFactory()->getEditable('private_message.settings')
     ->set('preferred_text_format', $form_state->getValue('preferred_text_format'))
     ->set('image_style', $form_state->getValue('image_style'))
+    ->set('thread_count', $form_state->getValue('thread_count'))
+    ->set('ajax_refresh_rate', $form_state->getValue('ajax_refresh_rate'))
     ->save();
 }
 
@@ -97,6 +121,7 @@ function private_message_messenger_form_private_message_config_form_submit(&$for
  * Get the gallback image.
  *
  * @return string
+ *   Path to the default image.
  */
 function _private_message_messenger_fallback_picture() {
   return base_path() . drupal_get_path('module', 'private_message_messenger') . '/images/default-profile.jpg';
@@ -106,6 +131,7 @@ function _private_message_messenger_fallback_picture() {
  * A wrapper to return messenger settings.
  *
  * @return array
+ *   Array of settings for drupalSettings.
  */
 function _private_message_messenger_get_settings() {
   $helper = \Drupal::service('private_message_messenger.messenger');
