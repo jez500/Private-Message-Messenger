@@ -87,3 +87,13 @@ the [timeago library](http://timeago.org/) in your theme, along with a behaviour
   }
 ```
 
+## Todo's / Wishlist
+
+* Look into token validation
+* Add delete thread option
+* Email - Correct url / allow override of email notification template
+* Maybe make a page/route/controller in addition to a block
+* Add a flag that registers if a message is viewed but not actioned, a message should not need a reply to flag as
+read - possible improvement to private_message, or maybe achievable with flag
+* Create a private_message_nodejs module that eliminates the need for polling and provides instant updates.
+* ??
