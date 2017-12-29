@@ -3,7 +3,14 @@
 namespace Drupal\private_message_messenger\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Block\BlockPluginInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\private_message_messenger\MessengerHelper;
+use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\Core\Render\Renderer;
+use Drupal\user\Entity\User;
 
 /**
  * Provides a Messenger Block.
@@ -13,7 +20,61 @@ use Drupal\Core\Form\FormStateInterface;
  *  admin_label = @Translation("Private Message Messenger"),
  * )
  */
-class Messenger extends BlockBase {
+class Messenger extends BlockBase implements BlockPluginInterface, ContainerFactoryPluginInterface {
+
+  /**
+   * Current user.
+   *
+   * @var \Drupal\Core\Session\AccountProxyInterface
+   */
+  protected $currentUser;
+
+  /**
+   * Messenger helper.
+   *
+   * @var \Drupal\private_message_messenger\MessengerHelper
+   */
+  protected $helper;
+
+  /**
+   * Renderer helper.
+   *
+   * @var \Drupal\Core\Render\Renderer
+   */
+  protected $renderer;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __construct(
+    array $configuration,
+    $plugin_id,
+    $plugin_definition,
+    AccountProxyInterface $current_user,
+    MessengerHelper $helper,
+    Renderer $renderer
+  ) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
+
+    $this->currentUser = $current_user;
+    $this->helper = $helper;
+    $this->renderer = $renderer;
+  }
+
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('current_user'),
+      $container->get('private_message_messenger.messenger'),
+      $container->get('renderer')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -63,20 +124,34 @@ class Messenger extends BlockBase {
    * {@inheritdoc}
    */
   public function build() {
+    // Check access first.
+    if (!$this->currentUser->isAuthenticated() || !$this->helper->checkAccess()) {
+      return [];
+    }
+
+    // Build JS settings.
     $settings = _private_message_messenger_get_settings();
     $settings['threadCount'] = (int) $this->configuration['thread_count'];
     $settings['ajaxRefreshRate'] = (int) $this->configuration['ajax_refresh_rate'];
+    $settings['token'] = $this->helper->generateToken();
 
-    $build = [];
-    $build['messenger'] = [
-      '#type' => 'container',
-      '#attributes' => [
-        'class' => ['pmm-messenger'],
+    // Add settings and cache context.
+    $build = [
+      '#cache' => [
+        'contexts' => ['user']
       ],
       '#attached' => [
         'drupalSettings' => [
           'pmm' => $settings,
         ]
+      ]
+    ];
+
+    // Build the block.
+    $build['messenger'] = [
+      '#type' => 'container',
+      '#attributes' => [
+        'class' => ['pmm-messenger'],
       ],
       'thread_list' => [
         '#theme' => 'pmm_threads',
@@ -85,7 +160,18 @@ class Messenger extends BlockBase {
         '#theme' => 'pmm_thread',
       ],
     ];
+
+    // Return block.
     return $build;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCacheTags() {
+    $cache_tags = parent::getCacheTags();
+    $cache_tags[] = 'private_message_messenger:uid:' . $this->currentUser->id();
+    return $cache_tags;
   }
 
 }
