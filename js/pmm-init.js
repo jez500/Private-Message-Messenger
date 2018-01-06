@@ -189,7 +189,7 @@
    *   The new message $form.
    */
   Drupal.pmm.helpers.saveMessage = function($form, callback) {
-    $(window).trigger('threads:viewed');
+    $(window).trigger('pm:threads:viewed');
     var $msg = $('textarea', $form), values = $form.serialize();
     if ($msg.val() == '' || $('.pmm-member', $form).length === 0) {
       return;
@@ -325,14 +325,22 @@
         if (Drupal.pmm.helpers.getRefreshRate() > 0) {
           setInterval(function(e){
             Drupal.pmm.helpers.checkForThreadUpdates(function(data){
-              $(window).trigger('threads:updated', [data]);
+              $(window).trigger('pm:threads:updated', [data]);
             });
           }, (Drupal.pmm.helpers.getRefreshRate() * 1000));
         }
+
+        // An external trigger has asked us to poll for messages.
+        $(window).on('pm:threads:poll', function(e) {
+          Drupal.pmm.helpers.checkForThreadUpdates(function(data){
+            $(window).trigger('pm:threads:updated', [data]);
+          });
+        });
+
       });
 
       // Close any dropdowns on body click.
-      $('body').click(function(e){
+      $('body').once('pmm-close-dropdown').click(function(e){
         $('.pmm-dropdown-parent').removeClass('open');
       });
     }

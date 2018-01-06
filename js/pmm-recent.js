@@ -40,12 +40,12 @@
         });
 
         // Listen for threads updates and re-fetch if there is updates.
-        $(window).on('threads:updated', function(e, data) {
+        $(window).on('pm:threads:updated', function(e, data) {
           Drupal.behaviors.pmmRecent.setUnreadCount(data.c, self);
         });
 
         // Listen for threads viewed to clear the count badge.
-        $(window).on('threads:viewed', function(e){
+        $(window).on('pm:threads:viewed', function(e){
           Drupal.behaviors.pmmRecent.setUnreadCount(0, self);
         });
 

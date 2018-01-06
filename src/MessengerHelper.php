@@ -166,16 +166,20 @@ class MessengerHelper {
   /**
    * Get threads for a given user.
    *
-   * TODO: Account for pagination with timestamp.
+   * TODO:
+   *  - Account for pagination with timestamp.
+   *  - Have hard set a limit of 50, because we reverse, to get latest, this
+   *    will break if a user has more than 50 messages (and is not efficient).
    */
   public function getRecentThreadCollection($limit = 30) {
-    $this->getThreadMaxMembers();
-    $recent_threads = $this->pmService->getThreadsForUser($limit);
+    $recent_threads = $this->pmService->getThreadsForUser(50);
     $threads = $recent_threads['threads'];
     $out = [];
 
     foreach (array_reverse($threads) as $thread) {
-      $out[] = $this->parseThread($thread);
+      if (count($out) <= $limit) {
+        $out[] = $this->parseThread($thread);
+      }
     }
     return $out;
   }
@@ -406,7 +410,7 @@ class MessengerHelper {
    *   The image URI or NULL if no image found.
    */
   public function getImageUriFromMember(User $member) {
-    if ($image = $member->get('user_picture')->first()) {
+    if ($member->hasField('user_picture') && $image = $member->get('user_picture')->first()) {
       return $image->entity->getFileUri();
     }
     return NULL;
@@ -777,7 +781,7 @@ class MessengerHelper {
   public function getConfig($config_key, $default = NULL, $config_bin = 'private_message.settings') {
     $config = $this->config->get($config_bin);
     $val = $config->get($config_key);
-    return !empty($val) ? $val : $default;
+    return !empty($val) || $val == 0 ? $val : $default;
   }
 
   /**

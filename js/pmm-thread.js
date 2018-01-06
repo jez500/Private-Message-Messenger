@@ -18,14 +18,14 @@
         });
 
         // Listen for message updates to current thread.
-        $(window).on('threads:updated', function(e, data) {
+        $(window).on('pm:threads:updated', function(e, data) {
           if (Drupal.pmm.helpers.isThreadUrl()) {
             // If we are on one of the updated threads, recent messages using timestamp.
             var threadId = Drupal.pmm.helpers.getUrlThreadId();
             if ($.inArray(threadId, data.t) !== -1) {
               var opt = {data: {id: threadId, ts: data.ts}, add: true, remove: false};
               Drupal.pmm.collections.messagesInstance.fetch(opt);
-              $(window).trigger('threads:viewed');
+              $(window).trigger('pm:threads:viewed');
             }
           }
         });

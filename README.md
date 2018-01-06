@@ -46,7 +46,7 @@ The selectize JS library is used for adding new recipients to messages, install 
 
 **Composer only instructions until I work out what to do with this module.**
 
-#### 1. Add repo and install Private Message Messenger with deps
+### 1. Add repo and install Private Message Messenger with deps
 
 Add the repo to your `composer.json`
 
@@ -72,7 +72,7 @@ Then...
 And...
 `composer require drupal/private_message_messenger`
 
-#### 3. Download libraries
+### 3. Download libraries
 
 Download and extract the following to the `/libraries` folder
 
@@ -80,11 +80,11 @@ Download and extract the following to the `/libraries` folder
 * https://github.com/selectize/selectize.js/releases
 * https://github.com/hustcc/timeago.js/releases (optional - see below)
 
-#### 3. Enable
+### 3. Enable
 
 `drush en -y private_message_messenger`
 
-#### 4. Configure
+### 4. Configure
 
 * Go to `/admin/config/private_message/config` and set preferred configuration then `Save`
 * Set the permission to `use private message` for the required roles.
@@ -104,7 +104,12 @@ Docs for private_message: https://www.drupal.org/docs/8/modules/private-message
 
 ## Optional
 
-### Timeago
+### Instant updates and notifications without polling
+
+See [Private Message NodeJS](https://github.com/jez500/Private-Message-NodeJS) which was specifically made to
+compliment this module.
+
+### Improved timestamps
 
 To make the dates on threads and messages look a lot nicer and use a live `XX mins ago` style format, you can include
 the [timeago library](http://timeago.org/) in your theme, along with a behaviour that looks like this:
@@ -130,3 +135,8 @@ the [timeago library](http://timeago.org/) in your theme, along with a behaviour
   very small eg < 30k. More of a problem could potentially be the browser rendering that much, but no issues observed
   yet.
 
+## Author
+
+This module is created by [Jeremy Graham](http://jez.me)
+but wouldn't be possible without all the great work done by [Jaypan](https://www.drupal.org/u/jaypan)
+on the [Private Message module](https://www.drupal.org/project/private_message)

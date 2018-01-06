@@ -90,6 +90,7 @@ function private_message_messenger_form_private_message_config_form_alter(&$form
 
   $form['pmm'] = [
     '#type' => 'container',
+    '#weight' => 20,
     'title' => ['#markup' => '<h3>' . t('Messenger') . '</h3>'],
   ];
 
@@ -119,7 +120,7 @@ function private_message_messenger_form_private_message_config_form_alter(&$form
   }
 
   // The default thread count to get.
-  $form['thread_count'] = [
+  $form['pmm']['thread_count'] = [
     '#type' => 'number',
     '#title' => t('Number of threads to show'),
     '#description' => t('The number of threads to be shown in the block'),
@@ -127,7 +128,8 @@ function private_message_messenger_form_private_message_config_form_alter(&$form
     '#min' => 1,
   ];
 
-  $form['ajax_refresh_rate'] = [
+  // The default ajax refresh rate.
+  $form['pmm']['ajax_refresh_rate'] = [
     '#type' => 'number',
     '#title' => t('Ajax refresh rate'),
     '#default_value' => $helper->getConfig('ajax_refresh_rate', $helper::AJAX_REFRESH_DEFAULT),

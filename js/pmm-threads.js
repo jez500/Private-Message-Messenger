@@ -17,7 +17,7 @@
         // Open thread on click.
         Drupal.pmm.views.threadListInstance.on('childview:select:item', function(item, event){
           Drupal.pmm.helpers.navigateTo(item.model.get('id'));
-          $(window).trigger('threads:viewed');
+          $(window).trigger('pm:threads:viewed');
         });
 
         // Set the optional uid so new users appear in thread list.
@@ -31,7 +31,7 @@
         Drupal.pmm.collections.threadsInstance.fetch(fetchOptions);
 
         // Listen for threads updates and re-fetch if there is updates.
-        $(window).on('threads:updated', function(e, data) {
+        $(window).on('pm:threads:updated', function(e, data) {
           // Loop over the models in the threads collection.
           Drupal.pmm.collections.threadsInstance.each(function(model){
             // If one of those models is in the collection, re-fetch.
