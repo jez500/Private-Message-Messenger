@@ -297,7 +297,7 @@ class MessengerHelper {
     // Member names are a comma seperated list of names. Add all member ids.
     foreach ($parsed_thread->members as $member) {
       $model['members'][] = [
-        'name' => Html::escape($member->getUsername()),
+        'name' => Html::escape($member->getDisplayName()),
         'id' => $member->id(),
         'url' => Url::fromRoute('entity.user.canonical', ['user' => $member->id()])->toString(),
       ];
@@ -313,7 +313,7 @@ class MessengerHelper {
     // Owner is the last sender of the message, ony populated if multiple
     // members or you. Otherwise assume last owner is the only member.
     if ($parsed_thread->last_owner) {
-      $model['owner'] = Html::escape($parsed_thread->last_owner->getUsername());
+      $model['owner'] = Html::escape($parsed_thread->last_owner->getDisplayName());
       $last_member = count($model['members']) > 1 ? $model['owner'] : '';
       $last_owner = $parsed_thread->last_owner->id() == $this->currentUser->id() ? $this->t('You') : $last_member;
     }
@@ -357,15 +357,15 @@ class MessengerHelper {
       return [
         'members' => [
           [
-            'name' => Html::escape($member->getUsername()),
+            'name' => Html::escape($member->getDisplayName()),
             'id' => $member->id(),
             'url' => Url::fromRoute('entity.user.canonical', ['user' => $member->id()])->toString(),
           ],
         ],
         'picture' => $this->getImageUrl($this->getImageUriFromMember($member)),
         'owner' => '',
-        'snippet' => '',
-        'timestamp' => $this->formatTimeStamp($member->getCreatedTime()),
+        'snippet' => $this->t('New message'),
+        'timestamp' => $this->formatTimeStamp(time()),
         'id' => 'new-' . $member->id(),
         'threadId' => 0,
         'unread' => FALSE,
@@ -386,7 +386,7 @@ class MessengerHelper {
   public function processMessageModel($parsed_message) {
     // Expected model structure. See js/pmmm-models.js.
     $model = [
-      'owner' => Html::escape($parsed_message->owner->getUsername()),
+      'owner' => Html::escape($parsed_message->owner->getDisplayName()),
       'picture' => NULL,
       'is_you' => $parsed_message->owner->id() == $this->currentUser->id(),
       'message' => $parsed_message->message,

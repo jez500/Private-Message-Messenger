@@ -6,6 +6,9 @@
  */
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Url;
 
 /**
  * Implements hook_theme().
@@ -177,4 +180,42 @@ function _private_message_messenger_fallback_picture() {
 function _private_message_messenger_get_settings() {
   $helper = \Drupal::service('private_message_messenger.messenger');
   return $helper->getSettings();
+}
+
+/**
+ * Implements hook_entity_extra_field_info().
+ */
+function private_message_messenger_entity_extra_field_info() {
+  $fields = [];
+
+  $user_bundles = \Drupal::entityManager()->getBundleInfo('user');
+  foreach (array_keys($user_bundles) as $bundle) {
+    $fields['user'][$bundle]['display']['private_message_messenger_link'] = [
+      'label' => t('Private message messenger thread link'),
+      'description' => t('Displays a link to send a private message to the user via Messenger'),
+      'visible' => FALSE,
+    ];
+  }
+
+  return $fields;
+}
+
+/**
+ * Implements hook_user_view().
+ */
+function private_message_messenger_user_view(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
+  if ($display->getComponent('private_message_messenger_link')) {
+    $current_user = \Drupal::currentUser();
+    if ($current_user->hasPermission('use private messaging system') && $current_user->id() != $entity->id()) {
+      $path = 'new-' . $entity->id();
+      $build['private_message_messenger_link'] = [
+        '#type' => 'link',
+        '#url' => Url::fromRoute('private_message_messenger.messenger', [], ['fragment' => $path]),
+        '#title' => t('Send private message'),
+        '#attributes' => ['class' => ['private_message_link']],
+        '#prefix' => '<div class="pmm_link_wrapper">',
+        '#suffix' => '</div>',
+      ];
+    }
+  }
 }
