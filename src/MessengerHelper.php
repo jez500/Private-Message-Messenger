@@ -457,14 +457,14 @@ class MessengerHelper {
    * Validate message values before save.
    *
    * @param array $values
-   *   Array of values sumbitted, includes 'message', 'members' & 'thread_id'.
+   *   Array of values submitted, includes 'message', 'members' & 'thread_id'.
    *
    * @return bool
    *   TRUE on success, FALSE on fail.
    */
   public function validateMessage(array $values) {
     // Require members and a message to save.
-    if (empty($values['members']) || empty($values['message'])) {
+    if (empty($values['members']) || !isset($values['message']) || $values['message'] == '' ) {
       return FALSE;
     }
 
