@@ -203,7 +203,7 @@ class JsonEndpoint extends ControllerBase {
     }
     foreach ($threads as $thread) {
       $processed_thread = $this->helper->processThreadModel($thread);
-      if (!$first_thread || $processed_thread['threadId'] != $first_thread['threadId']) {
+      if (empty($first_thread) || (is_array($first_thread) && ($processed_thread['threadId'] != $first_thread['threadId']))) {
         $response[] = $processed_thread;
       }
     }
