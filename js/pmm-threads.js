@@ -18,6 +18,7 @@
         Drupal.pmm.views.threadListInstance.on('childview:select:item', function(item, event){
           Drupal.pmm.helpers.navigateTo(item.model.get('id'));
           $(window).trigger('pm:threads:viewed');
+          $('.pmm-thread__message-text textarea').focus();
         });
 
         // Set the optional uid so new users appear in thread list.

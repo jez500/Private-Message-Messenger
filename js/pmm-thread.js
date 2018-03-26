@@ -111,14 +111,24 @@
         var $thread = Drupal.pmm.views.threadInstance.render().$el;
         $('#pmm-thread').html($thread);
 
+        // Focus to textarea.
+        $('.pmm-thread__message-text textarea').focus();
+
         // Bind form submit to save a new message.
         Drupal.pmm.views.threadInstance.on('form:submit', function(item, event){
           Drupal.pmm.helpers.saveMessage($('form', item.$el), function(data){
+            // Disable form submit button.
+            Drupal.pmm.helpers.disableSubmitButton();
+
             // Add new messages to collection and scroll to it.
             Drupal.pmm.collections.messagesInstance.add(data.messages);
             Drupal.pmm.helpers.scrollThreadToLastMsg();
+
             // Refresh sidebar.
             Drupal.pmm.collections.threadsInstance.fetch();
+
+            // Enable form submit button.
+            Drupal.pmm.helpers.enableSubmitButton();
           });
         });
       });
@@ -141,6 +151,9 @@
       // Render it to the dom.
       var $threadNew = Drupal.pmm.views.threadNewInstance.render().$el;
       $('#pmm-thread').html($threadNew);
+
+      // Focus to textarea.
+      $('.pmm-thread__message-text textarea').focus();
 
       // Bind form submit to save a new message.
       Drupal.pmm.views.threadNewInstance.on('form:submit', function(item, event){

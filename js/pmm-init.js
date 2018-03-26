@@ -175,6 +175,20 @@
   };
 
   /**
+   * Disable submit button.
+   */
+  Drupal.pmm.helpers.disableSubmitButton = function() {
+    $('.pmm-thread__send').addClass('disabled');
+  };
+
+  /**
+   * Enable submit button.
+   */
+  Drupal.pmm.helpers.enableSubmitButton = function() {
+    $('.pmm-thread__send').removeClass('disabled');
+  };
+
+  /**
    * Return the unix timestamp for the last visible message in the current thread.
    */
   Drupal.pmm.helpers.getLastVisibleMsgTimeStamp = function() {
@@ -192,11 +206,19 @@
     $(window).trigger('pm:threads:viewed');
     var $msg = $('textarea', $form), values = $form.serialize();
     if ($msg.val() == '' || $('.pmm-member', $form).length === 0) {
+      $('.pmm-thread__message-text textarea').focus();
       return;
     }
+
+    // Don't submit when button is disabled (prevents double submission).
+    if ($('.pmm-thread__send').hasClass('disabled')) {
+      return;
+    }
+
     // Get time of last po
     values += '&timestamp=' + Drupal.pmm.helpers.getLastVisibleMsgTimeStamp();
     // Post & Save.
+    $msg.val('');
     $.post(Drupal.pmm.helpers.buildReqUrl('message', {}, 'post'), values, function(data) {
       if (data && data.thread) {
         $msg.val('');
