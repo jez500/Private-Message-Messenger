@@ -144,11 +144,15 @@ class JsonEndpoint extends ControllerBase {
    *   JSON response.
    */
   public function post($action, Request $request) {
+    $action = 'post';
     $this->request = $request;
     $this->helper->getService()->updateLastCheckTime();
 
     // Get all the values.
     $values = $request->request->all();
+
+    // Allow other modules to modify any of the json responses.
+    $this->moduleHandler->alter('private_message_messenger_json_response', $values, $action, $request);
 
     // Check token and access before doing anything.
     if (!$this->helper->validateToken($values['tok']) || !$this->helper->checkAccess()) {
@@ -203,7 +207,7 @@ class JsonEndpoint extends ControllerBase {
     }
     foreach ($threads as $thread) {
       $processed_thread = $this->helper->processThreadModel($thread);
-      if (!$first_thread || $processed_thread['threadId'] != $first_thread['threadId']) {
+      if (empty($first_thread) || $processed_thread['threadId'] != $first_thread['threadId']) {
         $response[] = $processed_thread;
       }
     }

@@ -1,0 +1,16 @@
+private_message_messenger.settings:
+  type: config_object
+  label: 'Global settings for the Private Message Messenger module'
+  mapping:
+    preferred_text_format:
+      type: string
+      label: 'Default text format for messages posted.'
+    image_style:
+      type: string
+      label: 'Default image style for profile pictures in messages.'
+    thread_count:
+      type: integer
+      label: 'Count of threads to show in the inbox.'
+    ajax_refresh_rate:
+      type: integer
+      label: 'The interval between ajax fetching for new messages'

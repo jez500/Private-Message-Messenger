@@ -286,6 +286,7 @@ class MessengerHelper {
       'members' => [],
       'picture' => '',
       'owner' => '',
+      'owner_id' => 0,
       'snippet' => '',
       'timestamp' => $this->formatTimeStamp($parsed_thread->timestamp),
       'id' => 'thread-' . $parsed_thread->entity->id(),
@@ -314,6 +315,7 @@ class MessengerHelper {
     // members or you. Otherwise assume last owner is the only member.
     if ($parsed_thread->last_owner) {
       $model['owner'] = Html::escape($parsed_thread->last_owner->getDisplayName());
+      $model['owner_id'] = (int) $parsed_thread->last_owner->id();
       $last_member = count($model['members']) > 1 ? $model['owner'] : '';
       $last_owner = $parsed_thread->last_owner->id() == $this->currentUser->id() ? $this->t('You') : $last_member;
     }
@@ -364,6 +366,7 @@ class MessengerHelper {
         ],
         'picture' => $this->getImageUrl($this->getImageUriFromMember($member)),
         'owner' => '',
+        'owner_id' => (int) $member->id(),
         'snippet' => $this->t('New message'),
         'timestamp' => $this->formatTimeStamp(time()),
         'id' => 'new-' . $member->id(),
@@ -387,6 +390,7 @@ class MessengerHelper {
     // Expected model structure. See js/pmmm-models.js.
     $model = [
       'owner' => Html::escape($parsed_message->owner->getDisplayName()),
+      'owner_id' => (int) $parsed_message->owner->id(),
       'picture' => NULL,
       'is_you' => $parsed_message->owner->id() == $this->currentUser->id(),
       'message' => $parsed_message->message,
@@ -778,7 +782,7 @@ class MessengerHelper {
    * @return mixed
    *   The config value.
    */
-  public function getConfig($config_key, $default = NULL, $config_bin = 'private_message.settings') {
+  public function getConfig($config_key, $default = NULL, $config_bin = 'private_message_messenger.settings') {
     $config = $this->config->get($config_bin);
     $val = $config->get($config_key);
     return !empty($val) || $val == 0 ? $val : $default;
