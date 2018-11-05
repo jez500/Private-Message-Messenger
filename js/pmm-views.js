@@ -23,6 +23,7 @@
   Drupal.pmm.views.CollectionViewBase = Mn.CollectionView.extend({
     onRender: function() {
       Drupal.attachBehaviors(this.el);
+      Drupal.pmm.helpers.applyTimeAgo(this.$el);
       $('.pmm-loading', this.$el).hide();
     }
   });
@@ -84,6 +85,10 @@
     emptyView: Drupal.pmm.views.Empty,
     collectionEvents: {
       "sync": "render"
+    },
+    onRender: function() {
+      Drupal.pmm.views.CollectionViewBase.prototype.onRender.call(this);
+      Drupal.pmm.helpers.setSelectedThread();
     }
   });
 

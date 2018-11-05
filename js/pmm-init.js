@@ -100,6 +100,7 @@
       location.hash = '#' + path;
     }
     $(window).trigger('hashchange');
+    Drupal.pmm.helpers.setSelectedThread();
   };
 
   /**
@@ -164,6 +165,17 @@
   };
 
   /**
+   * Set selected thread based on url.
+   */
+  Drupal.pmm.helpers.setSelectedThread = function() {
+    var action = 'removeClass';
+    $('#pmm-threads .pmm-thread-teaser').each(function(){
+      action = ('#' + $(this).attr('rel') === window.location.hash) ? 'addClass' : 'removeClass';
+      $(this)[action]('selected');
+    });
+  };
+
+  /**
    * Scroll the thread messages to the bottom of the list (showing most recent msg).
    *
    * @param $el
@@ -180,6 +192,17 @@
   Drupal.pmm.helpers.getLastVisibleMsgTimeStamp = function() {
     var lastTime = $('#pmm-thread .pmm-message').last().data('time');
     var d = new Date(lastTime); return (d.getTime() / 1000);
+  };
+
+  /**
+   * Add nicer timestamps if timeago is available.
+   */
+  Drupal.pmm.helpers.applyTimeAgo = function($wrapper) {
+    if (typeof timeago === 'function') {
+      $('.pmm-timestamp', $wrapper).once('pmm-timestamp').each(function(i, el){
+        timeago().render(el);
+      });
+    }
   };
 
   /**

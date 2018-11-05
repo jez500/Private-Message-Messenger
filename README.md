@@ -112,17 +112,10 @@ compliment this module.
 ### Improved timestamps
 
 To make the dates on threads and messages look a lot nicer and use a live `XX mins ago` style format, you can include
-the [timeago library](http://timeago.org/) in your theme, along with a behaviour that looks like this:
-
-```
-  Drupal.behaviors.timeAgoUpdate = {
-    attach: function attach(context) {
-      $('.pmm-timestamp', context).once('pmm-timestamp').each(function(){
-        timeago().render(this);
-      });
-    }
-  }
-```
+the [timeago library](http://timeago.org/) library. To include this from a CDN, visit the settings page and tick the
+`Include timeago.js from remote CDN` checkbox. To include it locally, you will need to add the library to your
+[theme or module manually](https://www.drupal.org/docs/8/theming/adding-stylesheets-css-and-javascript-js-to-a-drupal-8-theme).
+If the `timeago()` function is detected, this module will use it.
 
 ## Todo's / Wishlist
 

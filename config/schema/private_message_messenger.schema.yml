@@ -14,3 +14,6 @@ private_message_messenger.settings:
     ajax_refresh_rate:
       type: integer
       label: 'The interval between ajax fetching for new messages'
+    timeago_cdn:
+      type: boolean
+      label: 'Include timeago.js library from a CDN'

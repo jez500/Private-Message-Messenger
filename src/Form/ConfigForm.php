@@ -125,6 +125,19 @@ class ConfigForm extends ConfigFormBase {
       ajax refresh, and the inbox will only updated if/when the page is refreshed.'),
     ];
 
+    // Include timeago.js from cdn.
+    $form['timeago_cdn'] = [
+      '#type' => 'checkbox',
+      '#title' => t('Include timeago.js from remote CDN'),
+      '#description' => t(
+        'Include timeago.js from CDN to improve timestamps on messages
+        and threads by displaying them in a "XX ago" format. If you want to
+        include timeago.js locally, leave this unchecked and add the library to
+        your theme or module manually. CDN used is 
+        "https://cdnjs.com/libraries/timeago.js"'),
+      '#default_value' => $this->messengerHelper->getConfig('timeago_cdn', FALSE),
+    ];
+
     return parent::buildForm($form, $form_state);
   }
 
@@ -132,13 +145,22 @@ class ConfigForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+    $config = $this->config('private_message_messenger.settings');
+    $current_timeago_cdn = $config->get('timeago_cdn');
 
-    $this->config('private_message_messenger.settings')
+    $config
       ->set('preferred_text_format', (string) $form_state->getValue('preferred_text_format'))
       ->set('image_style', (string) $form_state->getValue('image_style'))
       ->set('thread_count', (int) $form_state->getValue('thread_count'))
       ->set('ajax_refresh_rate', (int) $form_state->getValue('ajax_refresh_rate'))
+      ->set('timeago_cdn', (bool) $form_state->getValue('timeago_cdn'))
       ->save();
+
+    // If timeago_cdn changed we need a clear cache.
+    if ((bool) $current_timeago_cdn !== (bool) $form_state->getValue('timeago_cdn')) {
+      drupal_flush_all_caches();
+      drupal_set_message('caches cleared');
+    }
 
     parent::submitForm($form, $form_state);
   }
