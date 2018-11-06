@@ -143,6 +143,14 @@ class ConfigForm extends ConfigFormBase {
       '#description' => t('The number of characters to display in a thread snippet teaser.'),
     ];
 
+    // Open first thread on init.
+    $form['open_first_thread_on_init'] = [
+      '#type' => 'checkbox',
+      '#title' => t('Open first thread when initialized'),
+      '#description' => t('If this is checked, the fist thread will be opened when visiting /messenger. Only applies to desktop mode.'),
+      '#default_value' => $this->messengerHelper->getConfig('open_first_thread_on_init', TRUE),
+    ];
+
     // Use the enter key to send a message.
     $form['enter_key_send'] = [
       '#type' => 'checkbox',
@@ -181,6 +189,7 @@ class ConfigForm extends ConfigFormBase {
       ->set('ajax_refresh_rate', (int) $form_state->getValue('ajax_refresh_rate'))
       ->set('desktop_breakpoint', (int) $form_state->getValue('desktop_breakpoint'))
       ->set('snippet_length', (int) $form_state->getValue('snippet_length'))
+      ->set('open_first_thread_on_init', (bool) $form_state->getValue('open_first_thread_on_init'))
       ->set('enter_key_send', (bool) $form_state->getValue('enter_key_send'))
       ->set('timeago_cdn', (bool) $form_state->getValue('timeago_cdn'))
       ->save();

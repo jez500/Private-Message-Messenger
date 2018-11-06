@@ -679,6 +679,7 @@ class MessengerHelper {
       'threadCount' => (int) $this->getConfig('thread_count', self::THREAD_COUNT_DEFAULT),
       'ajaxRefreshRate' => (int) $this->getConfig('ajax_refresh_rate', self::AJAX_REFRESH_DEFAULT),
       'widthLarge' => (int) $this->getConfig('desktop_breakpoint', self::DESKTOP_BREAKPOINT),
+      'openFirstThread' => (bool) $this->getConfig('open_first_thread_on_init', FALSE),
       'enterKeySend' => (bool) $this->getConfig('enter_key_send', TRUE),
       'messengerPath' => $this->getMessengerPath(),
       'token' => $this->generateToken(),

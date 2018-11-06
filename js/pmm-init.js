@@ -18,6 +18,8 @@
     getEndpoint: drupalSettings.path.baseUrl + 'pmm-get/',
     postEndpoint: drupalSettings.path.baseUrl + 'pmm-post/',
     widthLarge: 700,
+    openFirstThread: false,
+    enterKeySend: true,
     messengerSelector: '.pmm-messenger',
     maxMembers: 0,
     token: '',
@@ -186,7 +188,7 @@
     _.defer(function($wrapper) {
       $('textarea', $wrapper).focus()
         .keyup(function(e){
-          if (Drupal.pmm.settings.enterKeySend && (e.which == 13 && !e.shiftKey)) {
+          if (Drupal.pmm.settings.enterKeySend && (e.which == 13 && !e.shiftKey) && Drupal.pmm.helpers.isDesktop()) {
             e.preventDefault();
             $(this).closest('form').find('.js-form-submit').click();
           }
@@ -219,6 +221,21 @@
   Drupal.pmm.helpers.scrollThreadToLastMsg = function($el) {
     $el = $el || $('#pmm-thread .message-list');
     $el.scrollTop($el[0].scrollHeight);
+  };
+
+  /**
+   * Open first thread from a thread collection.
+   */
+  Drupal.pmm.helpers.openFirstThread = function(collection) {
+    // If setting enabled, on desktop and hash is empty (ie path = /messenger)
+    if (
+      Drupal.pmm.settings.openFirstThread &&
+      Drupal.pmm.helpers.isDesktop() &&
+      window.location.hash === '' &&
+      collection.first()
+    ) {
+      Drupal.pmm.helpers.navigateToThread(collection.first().get('id'));
+    }
   };
 
   /**
@@ -331,11 +348,19 @@
   };
 
   /**
+   * Check if desktop (large) mode. Returns true if desktop mode.
+   */
+  Drupal.pmm.helpers.isDesktop = function() {
+    var $wrapper = $(Drupal.pmm.settings.messengerSelector);
+    return ($wrapper.width() > Drupal.pmm.settings.widthLarge);
+  };
+
+  /**
    * Apply the 'pmm-small' class for small screens.
    */
   Drupal.pmm.helpers.checkWidth = function() {
     var $wrapper = $(Drupal.pmm.settings.messengerSelector);
-    if ($wrapper.width() > Drupal.pmm.settings.widthLarge) {
+    if (Drupal.pmm.helpers.isDesktop()) {
       $wrapper.removeClass('pmm-small').addClass('pmm-large');
     } else {
       $wrapper.addClass('pmm-small').removeClass('pmm-large');
@@ -372,6 +397,10 @@
           Drupal.pmm.helpers.checkWidth();
         }, 250));
 
+        // Open first message.
+        if (Drupal.pmm.settings.openFirstThread && Drupal.pmm.helpers.isDesktop()) {
+
+        }
       });
     }
   };

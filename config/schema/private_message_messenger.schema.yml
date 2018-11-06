@@ -20,6 +20,9 @@ private_message_messenger.settings:
     snippet_length:
       type: integer
       label: 'The length of text in thread teaser snippets'
+    open_first_thread_on_init:
+      type: boolean
+      label: 'Open first thread when ui initialized'
     enter_key_send:
       type: boolean
       label: 'The enter key will send a message'

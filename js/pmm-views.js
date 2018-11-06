@@ -88,6 +88,7 @@
     },
     onRender: function() {
       Drupal.pmm.views.CollectionViewBase.prototype.onRender.call(this);
+      Drupal.pmm.helpers.openFirstThread(this.collection);
       Drupal.pmm.helpers.setSelectedThread();
     }
   });
@@ -185,7 +186,7 @@
         searchField: ['username'],
         maxItems: (Drupal.pmm.settings.maxMembers == 0 ? 1000 : Drupal.pmm.settings.maxMembers),
         preload: true,
-        placeholder: 'Type a username',
+        placeholder: $(this).attr('placeholder'),
         load:  function(query, callback) {
           var url = Drupal.pmm.helpers.buildReqUrl('members', {name: query});
           $.getJSON(url, function(data) {
