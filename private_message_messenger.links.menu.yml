@@ -1,0 +1,5 @@
+private_message_messenger.config:
+  title: 'Messenger'
+  description: 'Configuration settings for Private Message Messenger interface'
+  route_name: private_message_messenger.config
+  parent: private_message.admin_config

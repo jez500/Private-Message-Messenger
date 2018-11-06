@@ -7,7 +7,7 @@
  */
  #}
 <div class="pmm-thread__wrapper">
-    <div id="pmm-thread"></div>
+    <div id="pmm-thread">{{ welcome_text }}</div>
 </div>
 
 {#
@@ -37,7 +37,7 @@
                 <div class="pmm-thread__header-menu pmm-dropdown-parent">
                     <div class="pmm-thread__header-menu-toggle pmm-dropdown-toggle"><span>☰</span></div>
                     <ul class="pmm-dropdown">
-                        <li><a href="{{ base_path }}private_messages/<%= threadId %>/delete?destination={{ base_path }}messenger">{{ delete_text }}</a></li>
+                        <li><a href="{{ base_path }}private_messages/<%= threadId %>/delete?destination={{ base_path }}messenger">{{ strings.delete }}</a></li>
                     </ul>
                 </div>
             <% } %>
@@ -49,11 +49,11 @@
 
         <form class="pmm-thread__new-message">
             <div class="pmm-thread__message-text">
-                <textarea name="message" placeholder="Type a message"></textarea>
+                <textarea name="message" placeholder="{{ strings.message_placeholder }}"></textarea>
             </div>
 
             <div class="pmm-thread__actions">
-                <span class="pmm-thread__send js-form-submit">Send</span>
+                <span class="pmm-thread__send js-form-submit">{{ strings.send }}</span>
             </div>
 
             <% for (var i = 0, len = members.length; i < len; i++) { %>
@@ -106,17 +106,17 @@
                 <a href="#inbox">{{ inbox_text }}</a>
             </div>
             <div class="pmm-thread__header-new-members">
-                <select class="new-message-members" multiple="multiple"></select>
+                <select class="new-message-members" multiple="multiple" placeholder="{{ strings.username_placeholder }}"></select>
             </div>
         </div>
 
         <form class="pmm-thread__new-message">
             <div class="pmm-thread__message-text">
-                <textarea name="message" placeholder="Type a message"></textarea>
+                <textarea name="message" placeholder="{{ strings.message_placeholder }}"></textarea>
             </div>
 
             <div class="pmm-thread__actions">
-                <span class="pmm-thread__send js-form-submit">Send</span>
+                <span class="pmm-thread__send js-form-submit">{{ strings.send }}</span>
             </div>
 
             <input name="tok" value="<%= Drupal.pmm.helpers.getToken() %>" type="hidden" />

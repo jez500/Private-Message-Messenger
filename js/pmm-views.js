@@ -23,6 +23,7 @@
   Drupal.pmm.views.CollectionViewBase = Mn.CollectionView.extend({
     onRender: function() {
       Drupal.attachBehaviors(this.el);
+      Drupal.pmm.helpers.applyTimeAgo(this.$el);
       $('.pmm-loading', this.$el).hide();
     }
   });
@@ -84,6 +85,11 @@
     emptyView: Drupal.pmm.views.Empty,
     collectionEvents: {
       "sync": "render"
+    },
+    onRender: function() {
+      Drupal.pmm.views.CollectionViewBase.prototype.onRender.call(this);
+      Drupal.pmm.helpers.openFirstThread(this.collection);
+      Drupal.pmm.helpers.setSelectedThread();
     }
   });
 
@@ -149,6 +155,7 @@
         }));
       }
       Drupal.attachBehaviors(this.el);
+      Drupal.pmm.helpers.formBinds(this.el);
     },
     modelEvents: {
       'change': 'fetchMessages'
@@ -179,7 +186,7 @@
         searchField: ['username'],
         maxItems: (Drupal.pmm.settings.maxMembers == 0 ? 1000 : Drupal.pmm.settings.maxMembers),
         preload: true,
-        placeholder: 'Type a username',
+        placeholder: $(this).attr('placeholder'),
         load:  function(query, callback) {
           var url = Drupal.pmm.helpers.buildReqUrl('members', {name: query});
           $.getJSON(url, function(data) {
@@ -191,6 +198,8 @@
         }
       });
       Drupal.attachBehaviors(this.el);
+      Drupal.pmm.helpers.formBinds(this.el);
+      Drupal.pmm.helpers.setSelectedThread();
     }
   });
 

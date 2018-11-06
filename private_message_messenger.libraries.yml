@@ -43,3 +43,13 @@ recent:
     js/pmm-recent.js: { }
   dependencies:
     - private_message_messenger/pmm_backbone
+
+timeago_cdn:
+  version: 3.0.2
+  remote: https://timeago.org/
+  license:
+    name: MIT
+    url: https://github.com/hustcc/timeago.js/blob/master/LICENSE
+    gpl-compatible: true
+  js:
+    https://cdnjs.cloudflare.com/ajax/libs/timeago.js/3.0.2/timeago.min.js: {minified: true}

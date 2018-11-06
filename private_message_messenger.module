@@ -5,7 +5,6 @@
  * The private_message_messenger.module file.
  */
 
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Url;
@@ -18,16 +17,24 @@ function private_message_messenger_theme($existing, $type, $theme, $path) {
     'pmm_thread' => [
       'variables' => [
         'fallback_picture' => NULL,
-        'inbox_text' => NULL,
-        'delete_text' => NULL,
         'base_path' => '/',
         'thread_actions' => TRUE,
+        'welcome_text' => NULL,
+        'strings' => [
+          'inbox' => NULL,
+          'message_placeholder' => NULL,
+          'username_placeholder' => NULL,
+          'send' => NULL,
+          'delete' => NULL,
+        ],
       ],
     ],
     'pmm_threads' => [
       'variables' => [
-        'new_message_text' => NULL,
-        'loading_text' => NULL,
+        'strings' => [
+          'new_message' => NULL,
+          'loading' => NULL,
+        ],
       ],
     ],
     'pmm_thread_teaser' => [
@@ -38,9 +45,11 @@ function private_message_messenger_theme($existing, $type, $theme, $path) {
     ],
     'pmm_recent' => [
       'variables' => [
-        'link_text' => '',
-        'more_text' => '',
-        'loading_text' => NULL,
+        'strings' => [
+          'link' => NULL,
+          'more' => NULL,
+          'loading' => NULL,
+        ],
       ],
     ],
   ];
@@ -51,8 +60,10 @@ function private_message_messenger_theme($existing, $type, $theme, $path) {
  */
 function template_preprocess_pmm_threads(&$variables) {
   $variables['#attached']['library'][] = 'private_message_messenger/threads';
-  $variables['new_message_text'] = t('New Message');
-  $variables['loading_text'] = t('Loading...');
+  $variables['strings'] = [
+    'new_message' => t('New Message'),
+    'loading' => t('Loading...'),
+  ];
 }
 
 /**
@@ -61,9 +72,14 @@ function template_preprocess_pmm_threads(&$variables) {
 function template_preprocess_pmm_thread(&$variables) {
   $variables['#attached']['library'][] = 'private_message_messenger/thread';
   $variables['fallback_picture'] = _private_message_messenger_fallback_picture();
-  $variables['inbox_text'] = t('‹ Inbox');
-  $variables['delete_text'] = t('Delete thread');
   $variables['base_path'] = base_path();
+  $variables['strings'] = [
+    'inbox' => t('‹ Inbox'),
+    'message_placeholder' => t('Type a message'),
+    'username_placeholder' => t('Type a username'),
+    'send' => t('Send'),
+    'delete' => t('Delete thread'),
+  ];
 }
 
 /**
@@ -79,84 +95,12 @@ function template_preprocess_pmm_thread_teaser(&$variables) {
 function template_preprocess_pmm_recent(&$variables) {
   $helper = \Drupal::service('private_message_messenger.messenger');
   $variables['#attached']['library'][] = 'private_message_messenger/recent';
-  $variables['link_text'] = t('Messages');
-  $variables['all_text'] = t('All Messages');
-  $variables['loading_text'] = t('Loading...');
   $variables['url'] = $helper->getMessengerPath();
-}
-
-/**
- * Implements hook_form_private_message_config_form_alter().
- */
-function private_message_messenger_form_private_message_config_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-  $helper = \Drupal::service('private_message_messenger.messenger');
-
-  $form['pmm'] = [
-    '#type' => 'container',
-    '#weight' => 20,
-    'title' => ['#markup' => '<h3>' . t('Messenger') . '</h3>'],
+  $variables['strings'] = [
+    'link' => t('Messages'),
+    'more' => t('All Messages'),
+    'loading' => t('Loading...'),
   ];
-
-  // Set a default text format for messages.
-  $form['pmm']['preferred_text_format'] = [
-    '#type' => 'select',
-    '#title' => t('Prefered text format for messages'),
-    '#description' => t('You should ensure that users who have access to "use private message" can also access this format.'),
-    '#default_value' => $helper->getConfig('preferred_text_format', 'plain_text'),
-    '#options' => [],
-  ];
-  foreach (filter_formats() as $format) {
-    $form['pmm']['preferred_text_format']['#options'][$format->id()] = $format->label();
-  }
-
-  // Set a default image style for messages.
-  $styles = \Drupal::entityTypeManager()->getStorage('image_style')->loadMultiple();
-  $form['pmm']['image_style'] = [
-    '#type' => 'select',
-    '#title' => t('Profile picture Image style'),
-    '#description' => t('What image style is used in the messenger interface'),
-    '#default_value' => $helper->getConfig('image_style', $helper::IMAGE_STYLE_DEFAULT),
-    '#options' => [],
-  ];
-  foreach ($styles as $style) {
-    $form['pmm']['image_style']['#options'][$style->id()] = $style->label();
-  }
-
-  // The default thread count to get.
-  $form['pmm']['thread_count'] = [
-    '#type' => 'number',
-    '#title' => t('Number of threads to show'),
-    '#description' => t('The number of threads to be shown in the block'),
-    '#default_value' => $helper->getConfig('thread_count', $helper::THREAD_COUNT_DEFAULT),
-    '#min' => 1,
-  ];
-
-  // The default ajax refresh rate.
-  $form['pmm']['ajax_refresh_rate'] = [
-    '#type' => 'number',
-    '#title' => t('Ajax refresh rate'),
-    '#default_value' => $helper->getConfig('ajax_refresh_rate', $helper::AJAX_REFRESH_DEFAULT),
-    '#min' => 0,
-    '#description' => t(
-      'The number of seconds after which the inbox should refresh itself.
-      Setting this to a low number will result in more requests to the server,
-      adding overhead and bandwidth. Setting this number to zero will disable
-      ajax refresh, and the inbox will only updated if/when the page is refreshed.'),
-  ];
-
-  $form['#submit'][] = 'private_message_messenger_form_private_message_config_form_submit';
-}
-
-/**
- * Submit handler for private message config form.
- */
-function private_message_messenger_form_private_message_config_form_submit(&$form, FormStateInterface $form_state) {
-  \Drupal::configFactory()->getEditable('private_message.settings')
-    ->set('preferred_text_format', $form_state->getValue('preferred_text_format'))
-    ->set('image_style', $form_state->getValue('image_style'))
-    ->set('thread_count', $form_state->getValue('thread_count'))
-    ->set('ajax_refresh_rate', $form_state->getValue('ajax_refresh_rate'))
-    ->save();
 }
 
 /**
@@ -217,5 +161,13 @@ function private_message_messenger_user_view(array &$build, EntityInterface $ent
         '#suffix' => '</div>',
       ];
     }
+  }
+}
+
+function private_message_messenger_library_info_alter(&$libraries, $extension) {
+  $use_timeago_cdn = \Drupal::config('private_message_messenger.settings')->get('timeago_cdn');
+
+  if ($use_timeago_cdn && $extension == 'private_message_messenger') {
+    $libraries['init']['dependencies'][] = 'private_message_messenger/timeago_cdn';
   }
 }

@@ -18,8 +18,11 @@
     getEndpoint: drupalSettings.path.baseUrl + 'pmm-get/',
     postEndpoint: drupalSettings.path.baseUrl + 'pmm-post/',
     widthLarge: 700,
+    openFirstThread: false,
+    enterKeySend: true,
     messengerSelector: '.pmm-messenger',
     maxMembers: 0,
+    access: false,
     token: '',
     lastCheckTimestamp: 0,
     threadCount: 30,
@@ -100,6 +103,7 @@
       location.hash = '#' + path;
     }
     $(window).trigger('hashchange');
+    Drupal.pmm.helpers.setSelectedThread();
   };
 
   /**
@@ -164,6 +168,52 @@
   };
 
   /**
+   * Set selected thread based on url.
+   */
+  Drupal.pmm.helpers.setSelectedThread = function() {
+    var action = 'removeClass';
+    $('#pmm-threads .pmm-thread-teaser').each(function(){
+      action = ('#' + $(this).attr('rel') === window.location.hash) ? 'addClass' : 'removeClass';
+      $(this)[action]('selected');
+    });
+  };
+
+  /**
+   * Binds to message form. Deals with focus, sending with enter, etc.
+   *
+   * @param $wrapper
+   *   Wrapper containing the textarea (eg the thread view el).
+   */
+  Drupal.pmm.helpers.formBinds = function($wrapper) {
+    // A defer is required so binds get applied correctly in the stack.
+    _.defer(function($wrapper) {
+      $('textarea', $wrapper).focus()
+        .keyup(function(e){
+          if (Drupal.pmm.settings.enterKeySend && (e.which == 13 && !e.shiftKey) && Drupal.pmm.helpers.isDesktop()) {
+            e.preventDefault();
+            $(this).closest('form').find('.js-form-submit').click();
+          }
+        });
+    }, $wrapper);
+  };
+
+  /**
+   * Toggle if the form is disabled (while sending a message).
+   *
+   * @param $form
+   *   jQuery Form element.
+   * @param disabled
+   *   True or false.
+   */
+  Drupal.pmm.helpers.setFormDisabled = function($form, disabled) {
+    if (disabled) {
+      $form.addClass('disabled').find('textarea').attr('disabled', 'disabled');
+    } else {
+      $form.removeClass('disabled').find('textarea').removeAttr('disabled');
+    }
+  };
+
+  /**
    * Scroll the thread messages to the bottom of the list (showing most recent msg).
    *
    * @param $el
@@ -175,11 +225,37 @@
   };
 
   /**
+   * Open first thread from a thread collection.
+   */
+  Drupal.pmm.helpers.openFirstThread = function(collection) {
+    // If setting enabled, on desktop and hash is empty (ie path = /messenger)
+    if (
+      Drupal.pmm.settings.openFirstThread &&
+      Drupal.pmm.helpers.isDesktop() &&
+      window.location.hash === '' &&
+      collection.first()
+    ) {
+      Drupal.pmm.helpers.navigateToThread(collection.first().get('id'));
+    }
+  };
+
+  /**
    * Return the unix timestamp for the last visible message in the current thread.
    */
   Drupal.pmm.helpers.getLastVisibleMsgTimeStamp = function() {
     var lastTime = $('#pmm-thread .pmm-message').last().data('time');
     var d = new Date(lastTime); return (d.getTime() / 1000);
+  };
+
+  /**
+   * Add nicer timestamps if timeago is available.
+   */
+  Drupal.pmm.helpers.applyTimeAgo = function($wrapper) {
+    if (typeof timeago === 'function') {
+      $('.pmm-timestamp', $wrapper).once('pmm-timestamp').each(function(i, el){
+        timeago().render(el);
+      });
+    }
   };
 
   /**
@@ -191,13 +267,21 @@
   Drupal.pmm.helpers.saveMessage = function($form, callback) {
     $(window).trigger('pm:threads:viewed');
     var $msg = $('textarea', $form), values = $form.serialize();
-    if ($msg.val() == '' || $('.pmm-member', $form).length === 0) {
+    if ($msg.val() === '' || $('.pmm-member', $form).length === 0 || $form.hasClass('disabled')) {
+      Drupal.pmm.helpers.formBinds($form);
       return;
     }
-    // Get time of last po
+
+    // Set form as disabled to prevent double submit.
+    Drupal.pmm.helpers.setFormDisabled($form, true);
+
+    // Get time of last post
     values += '&timestamp=' + Drupal.pmm.helpers.getLastVisibleMsgTimeStamp();
+
     // Post & Save.
     $.post(Drupal.pmm.helpers.buildReqUrl('message', {}, 'post'), values, function(data) {
+      Drupal.pmm.helpers.formBinds($form);
+      Drupal.pmm.helpers.setFormDisabled($form, false);
       if (data && data.thread) {
         $msg.val('');
         callback(data);
@@ -265,11 +349,19 @@
   };
 
   /**
+   * Check if desktop (large) mode. Returns true if desktop mode.
+   */
+  Drupal.pmm.helpers.isDesktop = function() {
+    var $wrapper = $(Drupal.pmm.settings.messengerSelector);
+    return ($wrapper.width() > Drupal.pmm.settings.widthLarge);
+  };
+
+  /**
    * Apply the 'pmm-small' class for small screens.
    */
   Drupal.pmm.helpers.checkWidth = function() {
     var $wrapper = $(Drupal.pmm.settings.messengerSelector);
-    if ($wrapper.width() > Drupal.pmm.settings.widthLarge) {
+    if (Drupal.pmm.helpers.isDesktop()) {
       $wrapper.removeClass('pmm-small').addClass('pmm-large');
     } else {
       $wrapper.addClass('pmm-small').removeClass('pmm-large');
@@ -305,7 +397,6 @@
         $(window).on('resize', _.debounce(function () {
           Drupal.pmm.helpers.checkWidth();
         }, 250));
-
       });
     }
   };
@@ -318,6 +409,11 @@
   Drupal.behaviors.pmmGlobal = {
     attach: function attach(context) {
       $('body', context).once('pmm-polling').each(function () {
+
+        // If user does not have access to use private messages we should not poll.
+        if (Drupal.pmm.settings.access === false) {
+          return;
+        }
 
         // Poll for new updates.
         Drupal.pmm.settings.lastCheckTimestamp = Drupal.pmm.helpers.getTimestamp();

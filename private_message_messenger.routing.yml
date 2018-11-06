@@ -21,3 +21,10 @@ private_message_messenger.messenger:
   requirements:
     _permission: 'use private messaging system'
     _user_is_logged_in: 'TRUE'
+private_message_messenger.config:
+  path: '/admin/config/private_message/messenger'
+  defaults:
+    _title: 'Private Message Messenger Configuration'
+    _form: '\Drupal\private_message_messenger\Form\ConfigForm'
+  requirements:
+    _permission: 'administer private message module'

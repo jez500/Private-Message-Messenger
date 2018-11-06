@@ -1,0 +1,8 @@
+preferred_text_format: plain_text
+image_style: thumbnail
+thread_count: 30
+ajax_refresh_rate: 120
+desktopBreakpoint: 700
+open_first_thread_on_init: false
+enter_key_send: true
+timeago_cdn: false

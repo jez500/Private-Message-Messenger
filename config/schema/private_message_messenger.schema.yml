@@ -1,0 +1,31 @@
+private_message_messenger.settings:
+  type: config_object
+  label: 'Global settings for the Private Message Messenger module'
+  mapping:
+    preferred_text_format:
+      type: string
+      label: 'Default text format for messages posted.'
+    image_style:
+      type: string
+      label: 'Default image style for profile pictures in messages.'
+    thread_count:
+      type: integer
+      label: 'Count of threads to show in the inbox.'
+    ajax_refresh_rate:
+      type: integer
+      label: 'The interval between ajax fetching for new messages'
+    desktop_breakpoint:
+      type: integer
+      label: 'The breakpoint where the interface changes to desktop mode'
+    snippet_length:
+      type: integer
+      label: 'The length of text in thread teaser snippets'
+    open_first_thread_on_init:
+      type: boolean
+      label: 'Open first thread when ui initialized'
+    enter_key_send:
+      type: boolean
+      label: 'The enter key will send a message'
+    timeago_cdn:
+      type: boolean
+      label: 'Include timeago.js library from a CDN'

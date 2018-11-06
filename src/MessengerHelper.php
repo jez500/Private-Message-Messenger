@@ -50,11 +50,18 @@ class MessengerHelper {
   const AJAX_REFRESH_DEFAULT = 15;
 
   /**
-   * Length of a message snippet. TODO: Abstract.
+   * Desktop breakpoint.
    *
    * @var int
    */
-  protected $snippetLength = 500;
+  const DESKTOP_BREAKPOINT = 700;
+
+  /**
+   * Length of a message snippet.
+   *
+   * @var int
+   */
+  const SNIPPET_LENGTH = 500;
 
   /**
    * Instance of PrivateMessageService.
@@ -286,6 +293,7 @@ class MessengerHelper {
       'members' => [],
       'picture' => '',
       'owner' => '',
+      'owner_id' => 0,
       'snippet' => '',
       'timestamp' => $this->formatTimeStamp($parsed_thread->timestamp),
       'id' => 'thread-' . $parsed_thread->entity->id(),
@@ -314,13 +322,14 @@ class MessengerHelper {
     // members or you. Otherwise assume last owner is the only member.
     if ($parsed_thread->last_owner) {
       $model['owner'] = Html::escape($parsed_thread->last_owner->getDisplayName());
+      $model['owner_id'] = (int) $parsed_thread->last_owner->id();
       $last_member = count($model['members']) > 1 ? $model['owner'] : '';
       $last_owner = $parsed_thread->last_owner->id() == $this->currentUser->id() ? $this->t('You') : $last_member;
     }
 
     // Snippet is a truncated version of the message with the owner prefixed.
     $model['snippet'] = !empty($last_owner) ? $last_owner . ': ' : '';
-    $model['snippet'] .= Unicode::truncate($parsed_thread->last_message, $this->snippetLength, TRUE, TRUE);
+    $model['snippet'] .= Unicode::truncate($parsed_thread->last_message, self::SNIPPET_LENGTH, TRUE, TRUE);
 
     return $model;
   }
@@ -364,6 +373,7 @@ class MessengerHelper {
         ],
         'picture' => $this->getImageUrl($this->getImageUriFromMember($member)),
         'owner' => '',
+        'owner_id' => (int) $member->id(),
         'snippet' => $this->t('New message'),
         'timestamp' => $this->formatTimeStamp(time()),
         'id' => 'new-' . $member->id(),
@@ -387,6 +397,7 @@ class MessengerHelper {
     // Expected model structure. See js/pmmm-models.js.
     $model = [
       'owner' => Html::escape($parsed_message->owner->getDisplayName()),
+      'owner_id' => (int) $parsed_message->owner->id(),
       'picture' => NULL,
       'is_you' => $parsed_message->owner->id() == $this->currentUser->id(),
       'message' => $parsed_message->message,
@@ -667,7 +678,11 @@ class MessengerHelper {
       'maxMembers' => $this->getThreadMaxMembers(),
       'threadCount' => (int) $this->getConfig('thread_count', self::THREAD_COUNT_DEFAULT),
       'ajaxRefreshRate' => (int) $this->getConfig('ajax_refresh_rate', self::AJAX_REFRESH_DEFAULT),
+      'widthLarge' => (int) $this->getConfig('desktop_breakpoint', self::DESKTOP_BREAKPOINT),
+      'openFirstThread' => (bool) $this->getConfig('open_first_thread_on_init', FALSE),
+      'enterKeySend' => (bool) $this->getConfig('enter_key_send', TRUE),
       'messengerPath' => $this->getMessengerPath(),
+      'access' => $this->checkAccess(),
       'token' => $this->generateToken(),
     ];
     $this->moduleHandler->alter('private_message_messenger_js_settings', $settings);
@@ -778,7 +793,7 @@ class MessengerHelper {
    * @return mixed
    *   The config value.
    */
-  public function getConfig($config_key, $default = NULL, $config_bin = 'private_message.settings') {
+  public function getConfig($config_key, $default = NULL, $config_bin = 'private_message_messenger.settings') {
     $config = $this->config->get($config_bin);
     $val = $config->get($config_key);
     return !empty($val) || $val == 0 ? $val : $default;
