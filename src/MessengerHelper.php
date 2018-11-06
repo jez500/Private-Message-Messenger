@@ -682,6 +682,7 @@ class MessengerHelper {
       'openFirstThread' => (bool) $this->getConfig('open_first_thread_on_init', FALSE),
       'enterKeySend' => (bool) $this->getConfig('enter_key_send', TRUE),
       'messengerPath' => $this->getMessengerPath(),
+      'access' => $this->checkAccess(),
       'token' => $this->generateToken(),
     ];
     $this->moduleHandler->alter('private_message_messenger_js_settings', $settings);

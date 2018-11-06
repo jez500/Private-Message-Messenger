@@ -22,6 +22,7 @@
     enterKeySend: true,
     messengerSelector: '.pmm-messenger',
     maxMembers: 0,
+    access: false,
     token: '',
     lastCheckTimestamp: 0,
     threadCount: 30,
@@ -396,11 +397,6 @@
         $(window).on('resize', _.debounce(function () {
           Drupal.pmm.helpers.checkWidth();
         }, 250));
-
-        // Open first message.
-        if (Drupal.pmm.settings.openFirstThread && Drupal.pmm.helpers.isDesktop()) {
-
-        }
       });
     }
   };
@@ -413,6 +409,11 @@
   Drupal.behaviors.pmmGlobal = {
     attach: function attach(context) {
       $('body', context).once('pmm-polling').each(function () {
+
+        // If user does not have access to use private messages we should not poll.
+        if (Drupal.pmm.settings.access === false) {
+          return;
+        }
 
         // Poll for new updates.
         Drupal.pmm.settings.lastCheckTimestamp = Drupal.pmm.helpers.getTimestamp();
