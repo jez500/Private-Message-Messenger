@@ -17,16 +17,24 @@ function private_message_messenger_theme($existing, $type, $theme, $path) {
     'pmm_thread' => [
       'variables' => [
         'fallback_picture' => NULL,
-        'inbox_text' => NULL,
-        'delete_text' => NULL,
         'base_path' => '/',
         'thread_actions' => TRUE,
+        'welcome_text' => NULL,
+        'strings' => [
+          'inbox' => NULL,
+          'message_placeholder' => NULL,
+          'username_placeholder' => NULL,
+          'send' => NULL,
+          'delete' => NULL,
+        ],
       ],
     ],
     'pmm_threads' => [
       'variables' => [
-        'new_message_text' => NULL,
-        'loading_text' => NULL,
+        'strings' => [
+          'new_message' => NULL,
+          'loading' => NULL,
+        ],
       ],
     ],
     'pmm_thread_teaser' => [
@@ -37,9 +45,11 @@ function private_message_messenger_theme($existing, $type, $theme, $path) {
     ],
     'pmm_recent' => [
       'variables' => [
-        'link_text' => '',
-        'more_text' => '',
-        'loading_text' => NULL,
+        'strings' => [
+          'link' => NULL,
+          'more' => NULL,
+          'loading' => NULL,
+        ],
       ],
     ],
   ];
@@ -50,8 +60,10 @@ function private_message_messenger_theme($existing, $type, $theme, $path) {
  */
 function template_preprocess_pmm_threads(&$variables) {
   $variables['#attached']['library'][] = 'private_message_messenger/threads';
-  $variables['new_message_text'] = t('New Message');
-  $variables['loading_text'] = t('Loading...');
+  $variables['strings'] = [
+    'new_message' => t('New Message'),
+    'loading' => t('Loading...'),
+  ];
 }
 
 /**
@@ -60,9 +72,14 @@ function template_preprocess_pmm_threads(&$variables) {
 function template_preprocess_pmm_thread(&$variables) {
   $variables['#attached']['library'][] = 'private_message_messenger/thread';
   $variables['fallback_picture'] = _private_message_messenger_fallback_picture();
-  $variables['inbox_text'] = t('‹ Inbox');
-  $variables['delete_text'] = t('Delete thread');
   $variables['base_path'] = base_path();
+  $variables['strings'] = [
+    'inbox' => t('‹ Inbox'),
+    'message_placeholder' => t('Type a message'),
+    'username_placeholder' => t('Type a username'),
+    'send' => t('Send'),
+    'delete' => t('Delete thread'),
+  ];
 }
 
 /**
@@ -78,10 +95,12 @@ function template_preprocess_pmm_thread_teaser(&$variables) {
 function template_preprocess_pmm_recent(&$variables) {
   $helper = \Drupal::service('private_message_messenger.messenger');
   $variables['#attached']['library'][] = 'private_message_messenger/recent';
-  $variables['link_text'] = t('Messages');
-  $variables['all_text'] = t('All Messages');
-  $variables['loading_text'] = t('Loading...');
   $variables['url'] = $helper->getMessengerPath();
+  $variables['strings'] = [
+    'link' => t('Messages'),
+    'more' => t('All Messages'),
+    'loading' => t('Loading...'),
+  ];
 }
 
 /**
