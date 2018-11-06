@@ -176,6 +176,41 @@
   };
 
   /**
+   * Binds to message form. Deals with focus, sending with enter, etc.
+   *
+   * @param $wrapper
+   *   Wrapper containing the textarea (eg the thread view el).
+   */
+  Drupal.pmm.helpers.formBinds = function($wrapper) {
+    // A defer is required so binds get applied correctly in the stack.
+    _.defer(function($wrapper) {
+      $('textarea', $wrapper).focus()
+        .keyup(function(e){
+          if (Drupal.pmm.settings.enterKeySend && (e.which == 13 && !e.shiftKey)) {
+            e.preventDefault();
+            $(this).closest('form').find('.js-form-submit').click();
+          }
+        });
+    }, $wrapper);
+  };
+
+  /**
+   * Toggle if the form is disabled (while sending a message).
+   *
+   * @param $form
+   *   jQuery Form element.
+   * @param disabled
+   *   True or false.
+   */
+  Drupal.pmm.helpers.setFormDisabled = function($form, disabled) {
+    if (disabled) {
+      $form.addClass('disabled').find('textarea').attr('disabled', 'disabled');
+    } else {
+      $form.removeClass('disabled').find('textarea').removeAttr('disabled');
+    }
+  };
+
+  /**
    * Scroll the thread messages to the bottom of the list (showing most recent msg).
    *
    * @param $el
@@ -214,13 +249,21 @@
   Drupal.pmm.helpers.saveMessage = function($form, callback) {
     $(window).trigger('pm:threads:viewed');
     var $msg = $('textarea', $form), values = $form.serialize();
-    if ($msg.val() == '' || $('.pmm-member', $form).length === 0) {
+    if ($msg.val() === '' || $('.pmm-member', $form).length === 0 || $form.hasClass('disabled')) {
+      Drupal.pmm.helpers.formBinds($form);
       return;
     }
-    // Get time of last po
+
+    // Set form as disabled to prevent double submit.
+    Drupal.pmm.helpers.setFormDisabled($form, true);
+
+    // Get time of last post
     values += '&timestamp=' + Drupal.pmm.helpers.getLastVisibleMsgTimeStamp();
+
     // Post & Save.
     $.post(Drupal.pmm.helpers.buildReqUrl('message', {}, 'post'), values, function(data) {
+      Drupal.pmm.helpers.formBinds($form);
+      Drupal.pmm.helpers.setFormDisabled($form, false);
       if (data && data.thread) {
         $msg.val('');
         callback(data);

@@ -154,6 +154,7 @@
         }));
       }
       Drupal.attachBehaviors(this.el);
+      Drupal.pmm.helpers.formBinds(this.el);
     },
     modelEvents: {
       'change': 'fetchMessages'
@@ -196,6 +197,8 @@
         }
       });
       Drupal.attachBehaviors(this.el);
+      Drupal.pmm.helpers.formBinds(this.el);
+      Drupal.pmm.helpers.setSelectedThread();
     }
   });
 
