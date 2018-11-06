@@ -50,11 +50,18 @@ class MessengerHelper {
   const AJAX_REFRESH_DEFAULT = 15;
 
   /**
-   * Length of a message snippet. TODO: Abstract.
+   * Desktop breakpoint.
    *
    * @var int
    */
-  protected $snippetLength = 500;
+  const DESKTOP_BREAKPOINT = 700;
+
+  /**
+   * Length of a message snippet.
+   *
+   * @var int
+   */
+  const SNIPPET_LENGTH = 500;
 
   /**
    * Instance of PrivateMessageService.
@@ -322,7 +329,7 @@ class MessengerHelper {
 
     // Snippet is a truncated version of the message with the owner prefixed.
     $model['snippet'] = !empty($last_owner) ? $last_owner . ': ' : '';
-    $model['snippet'] .= Unicode::truncate($parsed_thread->last_message, $this->snippetLength, TRUE, TRUE);
+    $model['snippet'] .= Unicode::truncate($parsed_thread->last_message, self::SNIPPET_LENGTH, TRUE, TRUE);
 
     return $model;
   }
@@ -671,6 +678,8 @@ class MessengerHelper {
       'maxMembers' => $this->getThreadMaxMembers(),
       'threadCount' => (int) $this->getConfig('thread_count', self::THREAD_COUNT_DEFAULT),
       'ajaxRefreshRate' => (int) $this->getConfig('ajax_refresh_rate', self::AJAX_REFRESH_DEFAULT),
+      'widthLarge' => (int) $this->getConfig('desktop_breakpoint', self::DESKTOP_BREAKPOINT),
+      'enterKeySend' => (bool) $this->getConfig('enter_key_send', TRUE),
       'messengerPath' => $this->getMessengerPath(),
       'token' => $this->generateToken(),
     ];

@@ -125,6 +125,32 @@ class ConfigForm extends ConfigFormBase {
       ajax refresh, and the inbox will only updated if/when the page is refreshed.'),
     ];
 
+    // Where does it switch to desktop view.
+    $form['desktop_breakpoint'] = [
+      '#type' => 'number',
+      '#title' => t('Desktop breakpoint'),
+      '#default_value' => $this->messengerHelper->getConfig('desktop_breakpoint', $this->messengerHelper::DESKTOP_BREAKPOINT),
+      '#min' => 0,
+      '#description' => t('The screen width where the UI switches to desktop mode.'),
+    ];
+
+    // Snippet length.
+    $form['snippet_length'] = [
+      '#type' => 'number',
+      '#title' => t('Snippet length'),
+      '#default_value' => $this->messengerHelper->getConfig('snippet_length', $this->messengerHelper::SNIPPET_LENGTH),
+      '#min' => 0,
+      '#description' => t('The number of characters to display in a thread snippet teaser.'),
+    ];
+
+    // Use the enter key to send a message.
+    $form['enter_key_send'] = [
+      '#type' => 'checkbox',
+      '#title' => t('Enter key sends a message'),
+      '#description' => t('If this is unchecked, users need to click the send button to send a message. Only applies to desktop mode.'),
+      '#default_value' => $this->messengerHelper->getConfig('enter_key_send', TRUE),
+    ];
+
     // Include timeago.js from cdn.
     $form['timeago_cdn'] = [
       '#type' => 'checkbox',
@@ -153,13 +179,15 @@ class ConfigForm extends ConfigFormBase {
       ->set('image_style', (string) $form_state->getValue('image_style'))
       ->set('thread_count', (int) $form_state->getValue('thread_count'))
       ->set('ajax_refresh_rate', (int) $form_state->getValue('ajax_refresh_rate'))
+      ->set('desktop_breakpoint', (int) $form_state->getValue('desktop_breakpoint'))
+      ->set('snippet_length', (int) $form_state->getValue('snippet_length'))
+      ->set('enter_key_send', (bool) $form_state->getValue('enter_key_send'))
       ->set('timeago_cdn', (bool) $form_state->getValue('timeago_cdn'))
       ->save();
 
     // If timeago_cdn changed we need a clear cache.
     if ((bool) $current_timeago_cdn !== (bool) $form_state->getValue('timeago_cdn')) {
       drupal_flush_all_caches();
-      drupal_set_message('caches cleared');
     }
 
     parent::submitForm($form, $form_state);

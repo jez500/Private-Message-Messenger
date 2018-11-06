@@ -14,6 +14,15 @@ private_message_messenger.settings:
     ajax_refresh_rate:
       type: integer
       label: 'The interval between ajax fetching for new messages'
+    desktop_breakpoint:
+      type: integer
+      label: 'The breakpoint where the interface changes to desktop mode'
+    snippet_length:
+      type: integer
+      label: 'The length of text in thread teaser snippets'
+    enter_key_send:
+      type: boolean
+      label: 'The enter key will send a message'
     timeago_cdn:
       type: boolean
       label: 'Include timeago.js library from a CDN'
