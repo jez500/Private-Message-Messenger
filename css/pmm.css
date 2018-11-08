@@ -85,6 +85,7 @@
   padding: 10px;
 }
 
+.pmm-threads__new-message a.selected,
 .pmm-thread-teaser.selected {
   background: rgba(0,0,0,0.05);
 }
