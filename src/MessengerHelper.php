@@ -197,12 +197,15 @@ class MessengerHelper {
    * @param int $thread_id
    *   Thread entity id.
    *
-   * @return object
+   * @return object|boolean
    *   Parsed thread object.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
   public function getThreadById($thread_id) {
     $thread = $this->entityTypeManager->getStorage('private_message_thread')->load($thread_id);
     if ($thread && $thread->isMember($this->currentUser->id())) {
+      $thread->updateLastAccessTime($this->currentUser);
       return $this->parseThread($thread);
     }
     return FALSE;
@@ -218,6 +221,8 @@ class MessengerHelper {
    *
    * @return array
    *   Array of parsed messages.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
   public function getThreadMessages($thread_id, $timestamp = 0) {
     $thread = $this->getThreadById($thread_id);
@@ -240,13 +245,15 @@ class MessengerHelper {
   }
 
   /**
-   * Parse a thread entity into a flat obkect suitable for processing.
+   * Parse a thread entity into a flat object suitable for processing.
    *
    * @param \Drupal\private_message\Entity\PrivateMessageThread $thread
    *   The private message thread entity.
    *
    * @return object
    *   A parsed thread object.
+   *
+   * @throws \Drupal\Core\TypedData\Exception\MissingDataException
    */
   public function parseThread(PrivateMessageThread $thread) {
     $item = (object) [
@@ -270,7 +277,10 @@ class MessengerHelper {
     // Get a snippet from the last message.
     $last_msgs = array_reverse($thread->getMessages());
     $last_msg = reset($last_msgs);
-    $item->last_message = ($last_msg ? $last_msg->getMessage() : '');
+    $item->last_message = ($last_msg ? Html::escape($last_msg->getMessage()) : '');
+
+    // Set unread.
+    $item->unread = ($thread->getLastAccessTimestamp($this->currentUser) < $thread->getNewestMessageCreationTimestamp());
 
     // Get the last owner.
     $item->last_owner = ($last_msg ? $last_msg->getOwner() : FALSE);
@@ -342,6 +352,8 @@ class MessengerHelper {
    *
    * @return array|bool
    *   A thread model, either existing or a dummy one for a new thread.
+   *
+   * @throws \Drupal\Core\TypedData\Exception\MissingDataException
    */
   public function getThreadModelForUid($uid) {
     if (!is_numeric($uid) || !$this->checkAccess($uid)) {
@@ -392,6 +404,8 @@ class MessengerHelper {
    *
    * @return array
    *   A single model model array suitable for a JSON response.
+   *
+   * @throws \Drupal\Core\TypedData\Exception\MissingDataException
    */
   public function processMessageModel($parsed_message) {
     // Expected model structure. See js/pmmm-models.js.
@@ -419,6 +433,8 @@ class MessengerHelper {
    *
    * @return null|string
    *   The image URI or NULL if no image found.
+   *
+   * @throws \Drupal\Core\TypedData\Exception\MissingDataException
    */
   public function getImageUriFromMember(User $member) {
     if ($member->hasField('user_picture') && $image = $member->get('user_picture')->first()) {
@@ -468,10 +484,12 @@ class MessengerHelper {
    * Validate message values before save.
    *
    * @param array $values
-   *   Array of values sumbitted, includes 'message', 'members' & 'thread_id'.
+   *   Array of values submitted, includes 'message', 'members' & 'thread_id'.
    *
    * @return bool
    *   TRUE on success, FALSE on fail.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
   public function validateMessage(array $values) {
     // Require members and a message to save.
@@ -498,6 +516,9 @@ class MessengerHelper {
    *
    * @return bool|\Drupal\private_message\Entity\PrivateMessageThread
    *   FALSE on fail, a private message thread entity on success.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Core\Entity\EntityStorageException
    */
   public function saveMessage(array $values) {
     if (!$this->validateMessage($values)) {
@@ -537,6 +558,8 @@ class MessengerHelper {
    *
    * @return \Drupal\Core\Entity\EntityInterface
    *   A message entity.
+   *
+   * @throws \Drupal\Core\Entity\EntityStorageException
    */
   public function saveMessageEntity(array $values) {
     $entity = entity_create('private_message', [
@@ -654,6 +677,8 @@ class MessengerHelper {
    *
    * @return int
    *   The max number of members taken from the members form widget.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
   public function getThreadMaxMembers() {
     $max_members = 0;
@@ -672,6 +697,8 @@ class MessengerHelper {
    *
    * @return array
    *   Array of key/val settings passed to JS.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
   public function getSettings() {
     $settings = [
@@ -748,7 +775,7 @@ class MessengerHelper {
       'ts' => '',
     ];
     if ($out['c'] > 0) {
-      $out['t'] = array_map('intval', $this->getUnreadThreadIds($timestamp));
+      $out['t'] = $this->getUnreadThreadIds($timestamp);
       $out['ts'] = $timestamp;
     }
     return $out;
@@ -777,7 +804,7 @@ class MessengerHelper {
       ->condition('thread.updated', $timestamp, '>')
       ->execute()
       ->fetchCol();
-    return is_array($thread_ids) ? $thread_ids : [];
+    return is_array($thread_ids) ? array_map('intval', $thread_ids) : [];
   }
 
   /**
@@ -804,6 +831,8 @@ class MessengerHelper {
    *
    * @return array
    *   Renderable array.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
   public function buildMessenger() {
     // Check access first.

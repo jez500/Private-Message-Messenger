@@ -27,6 +27,7 @@
       timestamp: '',
       url: '',
       unread: false,
+      selected: false,
       messages: []
     }
   });

@@ -30,15 +30,14 @@
         // Fetch results.
         Drupal.pmm.collections.threadsInstance.fetch(fetchOptions);
 
+        // Fetch results if route changes.
+        $(window).on('pm:route:change', function(e, data) {
+          Drupal.pmm.collections.threadsInstance.fetch();
+        });
+
         // Listen for threads updates and re-fetch if there is updates.
         $(window).on('pm:threads:updated', function(e, data) {
-          // Loop over the models in the threads collection.
-          Drupal.pmm.collections.threadsInstance.each(function(model){
-            // If one of those models is in the collection, re-fetch.
-            if ($.inArray(parseInt(model.get('threadId')), data.t) !== -1) {
-              model.fetch();
-            }
-          })
+          Drupal.pmm.collections.threadsInstance.fetch();
         });
       });
     }

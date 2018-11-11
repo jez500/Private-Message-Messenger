@@ -37,6 +37,7 @@
      */
     routeChange: function() {
       $(Drupal.pmm.settings.messengerSelector).removeClass('is-inbox');
+      $(window).trigger('pm:route:change');
 
       // If inbox.
       if (Drupal.pmm.helpers.isInboxUrl()) {
@@ -84,10 +85,10 @@
         Drupal.pmm.views.threadInstance.destroy();
       }
 
-      // Instaciate a new message collection.
+      // Instantiate a new message collection.
       Drupal.pmm.collections.messagesInstance = new Drupal.pmm.collections.Messages();
 
-      // Instaciate a new thread model and fetch.
+      // Instantiate a new thread model and fetch.
       var threadModel = new Drupal.pmm.models.Thread({id: id, type: type});
       threadModel.fetch();
 

@@ -8,7 +8,7 @@
  */
 #}
 <script id="pmm-thread-teaser{{ id_suffix }}" type="x-template/underscore">
-    <div class="pmm-thread-teaser" data-time="<%= timestamp %>" rel="<%= id %>">
+    <div class="pmm-thread-teaser<%= unread ? ' unread' : '' %><%= selected ? ' selected' : '' %>" data-time="<%= timestamp %>" rel="<%= id %>">
 
         {# Fallback picture can be set by preprocessing this template #}
         <div class="pmm-thread-teaser__image">

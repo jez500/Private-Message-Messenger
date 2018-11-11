@@ -42,6 +42,10 @@
         // Listen for threads updates and re-fetch if there is updates.
         $(window).on('pm:threads:updated', function(e, data) {
           Drupal.behaviors.pmmRecent.setUnreadCount(data.c, self);
+          // Fetch to mark items as read if required.
+          Drupal.pmm.collections.threadsRecentInstance.fetch({
+            data: {limit: Drupal.pmm.settings.recentThreadCount}
+          });
         });
 
         // Listen for threads viewed to clear the count badge.
