@@ -13,7 +13,7 @@
     }
   ],
   "require": {
-    "drupal/private_message": "1.*",
+    "drupal/private_message": "*",
     "drupal/marionettejs": "dev-master",
     "drupal/selectize": "1.*"
   }
