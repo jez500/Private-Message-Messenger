@@ -15,8 +15,8 @@
   Drupal.pmm.settings = {
     urlThreadPrefix: 'thread',
     urlNewPrefix: 'new',
-    getEndpoint: drupalSettings.path.baseUrl + 'pmm-get/',
-    postEndpoint: drupalSettings.path.baseUrl + 'pmm-post/',
+    getEndpoint: drupalSettings.path.baseUrl + drupalSettings.path.pathPrefix + 'pmm-get/',
+    postEndpoint: drupalSettings.path.baseUrl + drupalSettings.path.pathPrefix + 'pmm-post/',
     widthLarge: 700,
     openFirstThread: false,
     enterKeySend: true,
@@ -103,7 +103,6 @@
       location.hash = '#' + path;
     }
     $(window).trigger('hashchange');
-    Drupal.pmm.helpers.setSelectedThread();
   };
 
   /**
@@ -165,23 +164,6 @@
    */
   Drupal.pmm.helpers.getUrlNewUid = function() {
     return Drupal.pmm.helpers.getIdFromUrl(Drupal.pmm.settings.urlNewPrefix);
-  };
-
-  /**
-   * Set selected thread based on url.
-   */
-  Drupal.pmm.helpers.setSelectedThread = function() {
-    var action = 'removeClass', $ctx = $('.pmm-threads__wrapper');
-    $('.pmm-thread-teaser, .pmm-threads__new-message a', $ctx).removeClass('selected');
-    // Selected thread.
-    $('.pmm-thread-teaser', $ctx).each(function(){
-      action = ('#' + $(this).attr('rel') === window.location.hash) ? 'addClass' : 'removeClass';
-      $(this)[action]('selected');
-    });
-    // New message selected.
-    if (Drupal.pmm.helpers.urlStartsWith('new')) {
-      $('.pmm-threads__new-message a', $ctx).addClass('selected');
-    }
   };
 
   /**

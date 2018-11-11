@@ -89,7 +89,6 @@
     onRender: function() {
       Drupal.pmm.views.CollectionViewBase.prototype.onRender.call(this);
       Drupal.pmm.helpers.openFirstThread(this.collection);
-      Drupal.pmm.helpers.setSelectedThread();
     }
   });
 
@@ -199,7 +198,6 @@
       });
       Drupal.attachBehaviors(this.el);
       Drupal.pmm.helpers.formBinds(this.el);
-      Drupal.pmm.helpers.setSelectedThread();
     }
   });
 

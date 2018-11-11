@@ -85,9 +85,13 @@
   padding: 10px;
 }
 
-.pmm-threads__new-message a.selected,
-.pmm-thread-teaser.selected {
+.pmm-threads__wrapper .pmm-threads__new-message a.selected,
+.pmm-threads__wrapper .pmm-thread-teaser.selected {
   background: rgba(0,0,0,0.05);
+}
+
+.pmm-thread-teaser.unread .pmm-thread-teaser__snippet {
+  font-weight: bold;
 }
 
 .pmm-thread-teaser__image {
@@ -322,6 +326,7 @@
 }
 
 .pmm-dropdown {
+  color: black;
   background: white;
   width: 280px;
   position: absolute;
@@ -345,6 +350,7 @@
   padding: 5px 10px;
   background: rgba(0,0,0,0.05);
   text-align: center;
+  color: black;
 }
 
 .pmm-recent__threads,

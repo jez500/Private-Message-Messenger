@@ -195,6 +195,8 @@ class JsonEndpoint extends ControllerBase {
    *
    * @return array
    *   Array of thread models.
+   *
+   * @throws \Drupal\Core\TypedData\Exception\MissingDataException
    */
   public function buildThreadCollection($uid = NULL, $limit = 30) {
     $response = [];
@@ -220,6 +222,8 @@ class JsonEndpoint extends ControllerBase {
    *
    * @return bool|object
    *   Thread object or FALSE if invalid.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    */
   public function getThread() {
     $id = $this->request->query->get('id');
