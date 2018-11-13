@@ -121,9 +121,16 @@
       "sync": "render"
     },
     onRender: function() {
+      // Call parent onRender.
+      Drupal.pmm.views.CollectionViewBase.prototype.onRender.call(this);
       // Scroll to the bottom of the list.
       Drupal.pmm.helpers.scrollThreadToLastMsg(this.$el);
-      Drupal.attachBehaviors(this.el);
+      // Scroll to bottom of list if keyboard opened and textarea focus (window resize).
+      $(window).resize(_.debounce(function() {
+        if ($('.pmm-thread__message-text textarea').is(':focus')) {
+          Drupal.pmm.helpers.scrollThreadToLastMsg(this.$el);
+        }
+      }.bind(this), 300));
     }
   });
 
